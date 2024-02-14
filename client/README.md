@@ -4,9 +4,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-If this is your first time using npm, make sure to run:
+If this is your first time using npm and/or firebase, make sure to run:
 
 ### `npm install`
+
+Along with:
+
+### `npm install firebase`
 
 In the project directory, you can run:
 
