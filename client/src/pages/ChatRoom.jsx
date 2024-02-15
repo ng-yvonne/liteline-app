@@ -6,6 +6,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import ShareIcon from '@mui/icons-material/Share';
 import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import ChatLobby from "./ChatLobby";
+import Chatbox from "../components/chatbox/Chatbox";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
@@ -15,8 +16,8 @@ const ChatRoom = () => {
 
       {/* Left Sidebar */}
       <div className="flex flex-col w-1/5 min-w-fit justify-between items-center">
-        <div class="p-4 text-gray-900">
-            <div class="grid grid-cols-1 gap-4 divide-y">
+        <div className="p-4 text-gray-900">
+            <div className="grid grid-cols-1 gap-4 divide-y">
 
               {/* TODO: Scrollable rooms section */}
 
@@ -43,8 +44,8 @@ const ChatRoom = () => {
         
       <div className="flex border-b-2 w-full h-16 justify-center items-center">Chat Room Name</div>
         
-        <div className="flex flex-row w-full h-full">
-          <div className="flex flex-col w-3/4 min-w-fit justify-center items-center">Chat</div>
+        <div className="flex flex-row w-full h-full max-h-full max-w-full">
+            <Chatbox />
         </div>
         
       </div>
@@ -53,8 +54,8 @@ const ChatRoom = () => {
       {/* Right Sidebar */}
       <div className="border-2 h-full"></div>
       <div className="flex flex-col w-1/5 min-w-fit justify-between items-center">
-        <div class="p-4 text-gray-900">
-            <div class="grid grid-cols-1 gap-4 divide-y">
+        <div className="p-4 text-gray-900">
+            <div className="grid grid-cols-1 gap-4 divide-y">
 
               {/* TODO: Scrollable people in a room section */}
 
