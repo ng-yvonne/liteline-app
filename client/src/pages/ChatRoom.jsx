@@ -15,16 +15,35 @@ const ChatRoom = () => {
     <div className="container-center flex-row justify-between">
 
       {/* Left Sidebar */}
-      <div className="flex flex-col w-1/5 min-w-fit justify-between items-center">
+      {/* TODO: Make Room Components */}
+      <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
+        {/* Sidebar Content */}
         <div className="p-4 text-gray-900">
-            <div className="grid grid-cols-1 gap-4 divide-y">
+            <h1 className="text-lg font-bold mb-4">Available Rooms</h1>
+            <div className="grid grid-cols-1 gap-4">
 
-              {/* TODO: Scrollable rooms section */}
+            {/* Scrollable Container for Room Components */}
+            <div className="overflow-y-scroll flex flex-col items-center space-y-3 h-96">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Room 1
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Room 2
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Room 3
+                </button>
+
+
+            </div>
+
+            <hr class="my-6 border-gray-200 dark:border-gray-400" />
 
               <Button variant="outlined" color="inherit" startIcon={<ManageAccountsIcon/>}>
                 User Settings
               </Button>
 
+              <hr class="my-6 border-gray-200 dark:border-gray-400" />
               <Button variant="contained" startIcon={<GroupAddRoundedIcon />}>
                 Join Room
               </Button>
@@ -34,9 +53,10 @@ const ChatRoom = () => {
               </Button>
 
 
-              </div>
             </div>
-      </div>      
+        </div>
+    </div>
+    
       <div className="border-2 h-full"></div>
 
       <div className="flex flex-col w-4/5 min-w-fit h-full items-center">
@@ -53,23 +73,38 @@ const ChatRoom = () => {
       {/* TODO: Spacing for both sidebars*/}
       {/* Right Sidebar */}
       <div className="border-2 h-full"></div>
-      <div className="flex flex-col w-1/5 min-w-fit justify-between items-center">
+      <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
         <div className="p-4 text-gray-900">
-            <div className="grid grid-cols-1 gap-4 divide-y">
+            <h1 className="text-lg mb-4">Current Members</h1>
+            <div className="grid grid-cols-1 gap-4">
 
-              {/* TODO: Scrollable people in a room section */}
+            {/* TODO: Make People Components */}
+            {/* Scrollable Container for People Components */}
+            <div className="overflow-y-scroll flex flex-col items-center space-y-3 h-96">
+                {/* Buttons */}
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Person 1
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Person 2
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Person 3
+                </button>
+                {/* Add more buttons as needed */}
+            </div>
 
+              <hr class="my-6 border-gray-200 dark:border-gray-400" />
               <Button variant="outlined" color="inherit" startIcon={<RoomPreferencesIcon />}>
                 Room Settings
               </Button>
 
+              <hr class="my-6 border-gray-200 dark:border-gray-400" />
               <Button variant="contained" color="success" endIcon={<ShareIcon />}>
                 Share
               </Button>
-
-
-              </div>
             </div>
+          </div>
       </div>
 
     </div>
