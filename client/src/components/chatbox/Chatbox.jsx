@@ -13,7 +13,8 @@ const Message = ({ message }) => {
 };
 
 // Chatbox component to display the chat interface
-const Chatbox = () => {
+const Chatbox = (props) => {
+  const {username} = props;
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
@@ -21,7 +22,7 @@ const Chatbox = () => {
   const sendMessage = () => {
     if (inputValue.trim() !== '') {
       const newMessage = {
-        username: 'You', // Assuming the user is sending the message
+        username: username, // Assuming the user is sending the message
         content: inputValue,
       };
       setMessages([...messages, newMessage]);
