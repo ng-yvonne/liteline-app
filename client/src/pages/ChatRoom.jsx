@@ -11,6 +11,7 @@ import Member from "../components/member/Member";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
+  const username = "Bob"; // replace with the actual username 
 
   return (
     <div className="container-center flex-row justify-between">
@@ -66,7 +67,7 @@ const ChatRoom = () => {
       <div className="flex border-b-2 w-full h-16 justify-center items-center">Chat Room Name</div>
         
         <div className="flex flex-row w-full h-full max-h-full max-w-full">
-            <Chatbox />
+            <Chatbox username={username}/>
         </div>
         
       </div>
