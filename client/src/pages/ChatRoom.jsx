@@ -11,7 +11,7 @@ import Member from "../components/member/Member";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
-  const username = "Bob"; // replace with the actual username.
+  const username = "Bob"; // replace with the actual username  ;
 
   return (
     <div className="container-center flex-row justify-between">
