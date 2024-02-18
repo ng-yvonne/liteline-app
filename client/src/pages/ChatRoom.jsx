@@ -7,6 +7,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import ChatLobby from "./ChatLobby";
 import Chatbox from "../components/chatbox/Chatbox";
+import Member from "../components/member/Member";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
@@ -23,7 +24,7 @@ const ChatRoom = () => {
             <div className="grid grid-cols-1 gap-4">
 
             {/* Scrollable Container for Room Components */}
-            <div className="overflow-y-scroll flex flex-col items-center space-y-3 h-96">
+            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Room 1
                 </button>
@@ -78,20 +79,11 @@ const ChatRoom = () => {
             <h1 className="text-lg mb-4">Current Members</h1>
             <div className="grid grid-cols-1 gap-4">
 
-            {/* TODO: Make People Components */}
             {/* Scrollable Container for People Components */}
-            <div className="overflow-y-scroll flex flex-col items-center space-y-3 h-96">
+            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
                 {/* Buttons */}
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Person 1
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Person 2
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Person 3
-                </button>
-                {/* Add more buttons as needed */}
+                <Member />
+
             </div>
 
               <hr class="my-6 border-gray-200 dark:border-gray-400" />
