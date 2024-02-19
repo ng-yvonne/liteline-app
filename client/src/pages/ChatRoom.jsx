@@ -8,6 +8,7 @@ import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import ChatLobby from "./ChatLobby";
 import Chatbox from "../components/chatbox/Chatbox";
 import Member from "../components/member/Member";
+import Room from "../components/member/Room";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
@@ -17,7 +18,6 @@ const ChatRoom = () => {
     <div className="container-center flex-row justify-between">
 
       {/* Left Sidebar */}
-      {/* TODO: Make Room Components */}
       <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
         {/* Sidebar Content */}
         <div className="p-4 text-gray-900">
@@ -25,16 +25,12 @@ const ChatRoom = () => {
             <div className="grid grid-cols-1 gap-4">
 
             {/* Scrollable Container for Room Components */}
-            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 1
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 2
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 3
-                </button>
+            <div className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+              
+              {/* Example member components. Links should be dynamically added from the backend */}
+              <Room name="CPSC 559 Study Group" link="/chatroom"/>
+              <Room name="413 Study Pals"/>
+              <Room/>
 
 
             </div>
@@ -81,9 +77,15 @@ const ChatRoom = () => {
             <div className="grid grid-cols-1 gap-4">
 
             {/* Scrollable Container for People Components */}
-            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
-                {/* Buttons */}
+            <div className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+                {/* Example member components. Members should be dynamically added from the backend */}
+                <Member name="Patrick Bateman" isOwner="true"/>
+                <Member name="Andrew 'Spider-Man' Garfield" isOwner="false"/>
+                <Member name="Jennifer Lawrence" isOwner="false"/>
+                <Member isAFK="true"/>
                 <Member />
+
+
 
             </div>
 
