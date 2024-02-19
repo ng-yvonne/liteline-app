@@ -14,8 +14,14 @@
   padding: 10px;
 }
 
+.timestamp {
+  font-size: 11px;
+  color: #4e4e4e;
+  padding-left: 3px;
+}
+
 .message {
-  margin-bottom: 5px;
+  margin-bottom: 7px;
 }
 
 .username {
