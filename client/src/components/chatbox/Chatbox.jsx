@@ -1,16 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Chatbox.css'; // import CSS for styling
 import { Button } from '@mui/material';
+import Message from './Message';
 
-// Message component to display individual messages
-const Message = ({ message }) => {
-  return (
-    <div className="message">
-      <span className="username">{message.username}: </span>
-      <span className="content">{message.content}</span>
-    </div>
-  );
-};
 
 // Chatbox component to display the chat interface
 const Chatbox = (props) => {
@@ -18,17 +10,20 @@ const Chatbox = (props) => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
+
   // Function to handle sending messages
   const sendMessage = () => {
     if (inputValue.trim() !== '') {
       const newMessage = {
-        username: username, // Assuming the user is sending the message
+        username: username,
         content: inputValue,
+        timestamp: new Date().toISOString() // Add timestamp when message is sent
       };
       setMessages([...messages, newMessage]);
       setInputValue('');
     }
   };
+
 
     // Automatically scroll to the bottom of the chat window
     const scrollToBottom = () => {
