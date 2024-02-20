@@ -25,14 +25,12 @@ const ChatRoom = () => {
             <div className="grid grid-cols-1 gap-4">
 
             {/* Scrollable Container for Room Components */}
-            <div className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+            <div id="roomContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
               
               {/* Example member components. Links should be dynamically added from the backend */}
               <Room name="CPSC 559 Study Group" link="/chatroom"/>
               <Room name="413 Study Pals"/>
               <Room/>
-
-
             </div>
 
             <hr class="my-6 border-gray-200 dark:border-gray-400" />
@@ -69,24 +67,21 @@ const ChatRoom = () => {
       </div>
       
       {/* TODO: Spacing for both sidebars*/}
-      {/* Right Sidebar */}
       <div className="border-2 h-full"></div>
+      {/* Right Sidebar */}
       <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
         <div className="p-4 text-gray-900">
             <h1 className="text-lg mb-4">Current Members</h1>
             <div className="grid grid-cols-1 gap-4">
 
             {/* Scrollable Container for People Components */}
-            <div className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+            <div id="memberContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
                 {/* Example member components. Members should be dynamically added from the backend */}
                 <Member name="Patrick Bateman" isOwner="true"/>
                 <Member name="Andrew 'Spider-Man' Garfield" isOwner="false"/>
                 <Member name="Jennifer Lawrence" isOwner="false"/>
                 <Member isAFK="true"/>
                 <Member />
-
-
-
             </div>
 
               <hr class="my-6 border-gray-200 dark:border-gray-400" />
