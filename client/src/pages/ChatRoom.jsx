@@ -19,14 +19,28 @@ const ChatRoom = () => {
 
       {/* Left Sidebar */}
       <div className="flex flex-col justify-between w-1/5 min-w-fit h-full">
-        <div className="p-4 text-gray-800">
+        <div className="p-4 text-gray-800 h-[77%]">
             <h1 className="text-lg font-bold mb-4 text-center">Available Rooms</h1>
 
                 {/* Scrollable Container for Room Components */}
-                <div id="roomContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+                <div id="roomContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-full">
                   {/* Example for how Room components are used */}
                     <Room name="CPSC 559 Study Group" link="/chatroom"/>
                     <Room name="413 Study Pals"/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
                     <Room/>
                     <Room/>
                     <Room/>
@@ -82,11 +96,11 @@ const ChatRoom = () => {
       <div className="border-2 h-full"></div>
       {/* Right Sidebar */}
       <div className="flex flex-col justify-between h-full w-1/5 min-w-fit">
-        <div className="p-4 text-gray-900">
+        <div className="p-4 text-gray-900 h-[82%]">
             <h1 className="text-lg mb-4 text-center">Current Members</h1>
               
               {/* Scrollable Container for People Components */}
-              <div id="memberContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-96">
+              <div id="memberContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-full">
                   {/* Example member components. Members should be dynamically added from the backend */}
                   <Member name="Patrick Bateman" isOwner="true"/>
                   <Member name="Andrew 'Spider-Man' Garfield" isOwner="false"/>
