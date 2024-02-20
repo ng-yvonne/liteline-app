@@ -8,6 +8,7 @@ import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
 import ChatLobby from "./ChatLobby";
 import Chatbox from "../components/chatbox/Chatbox";
 import Member from "../components/member/Member";
+import Room from "../components/member/Room";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
@@ -17,47 +18,66 @@ const ChatRoom = () => {
     <div className="container-center flex-row justify-between">
 
       {/* Left Sidebar */}
-      {/* TODO: Make Room Components */}
-      <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
-        {/* Sidebar Content */}
-        <div className="p-4 text-gray-900">
-            <h1 className="text-lg font-bold mb-4">Available Rooms</h1>
-            <div className="grid grid-cols-1 gap-4">
+      <div className="flex flex-col justify-between w-1/5 min-w-fit h-full">
+        <div className="p-4 text-gray-800 h-[77%]">
+            <h1 className="text-lg font-bold mb-4 text-center">Available Rooms</h1>
 
-            {/* Scrollable Container for Room Components */}
-            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 1
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 2
-                </button>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Room 3
-                </button>
-
-
-            </div>
-
-            <hr class="my-6 border-gray-200 dark:border-gray-400" />
-
-              <Button variant="outlined" color="inherit" startIcon={<ManageAccountsIcon/>}>
-                User Settings
-              </Button>
-
-              <hr class="my-6 border-gray-200 dark:border-gray-400" />
-              <Button variant="contained" startIcon={<GroupAddRoundedIcon />}>
-                Join Room
-              </Button>
+                {/* Scrollable Container for Room Components */}
+                <div id="roomContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-full">
+                  {/* Example for how Room components are used */}
+                    <Room name="CPSC 559 Study Group" link="/chatroom"/>
+                    <Room name="413 Study Pals"/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    <Room/>
+                    
+                    
+                  
+                </div>
+          </div>
+          <div className="p-4 flex flex-col justify-between">
+            <hr className="my-6 border-gray-200 dark:border-gray-400" />
               
-              <Button variant="contained" color="secondary" startIcon={<AddRoundedIcon />}>
-                Create Room
-              </Button>
-
-
+            {/* Button for User Settings */}
+            <Button variant="outlined" color="inherit" startIcon={<ManageAccountsIcon/>} className="flex-grow">
+                User Settings
+            </Button>
+            
+            <hr className="my-6 border-gray-200 dark:border-gray-400" />
+            
+            {/* Container for Join Room and Create Room buttons */}
+            <div className="flex flex-col gap-4">
+                {/* Button for Joining a Room */}
+                <Button variant="contained" startIcon={<GroupAddRoundedIcon />}>
+                    Join Room
+                </Button>
+                
+                {/* Button for Creating a Room */}
+                <Button variant="contained" color="secondary" startIcon={<AddRoundedIcon />}>
+                    Create Room
+                </Button>
             </div>
-        </div>
-    </div>
+          </div>
+      </div>
     
       <div className="border-2 h-full"></div>
 
@@ -73,30 +93,63 @@ const ChatRoom = () => {
       </div>
       
       {/* TODO: Spacing for both sidebars*/}
-      {/* Right Sidebar */}
       <div className="border-2 h-full"></div>
-      <div className="flex flex-col w-1/5 min-w-fit justify-between items-stretch">
-        <div className="p-4 text-gray-900">
-            <h1 className="text-lg mb-4">Current Members</h1>
-            <div className="grid grid-cols-1 gap-4">
-
-            {/* Scrollable Container for People Components */}
-            <div className="overflow-y-scroll flex flex-col items-center items-stretch space-y-3 h-96">
-                {/* Buttons */}
-                <Member />
-
-            </div>
-
-              <hr class="my-6 border-gray-200 dark:border-gray-400" />
-              <Button variant="outlined" color="inherit" startIcon={<RoomPreferencesIcon />}>
-                Room Settings
+      {/* Right Sidebar */}
+      <div className="flex flex-col justify-between h-full w-1/5 min-w-fit">
+        <div className="p-4 text-gray-900 h-[82%]">
+            <h1 className="text-lg mb-4 text-center">Current Members</h1>
+              
+              {/* Scrollable Container for People Components */}
+              <div id="memberContainer" className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-full">
+                  {/* Example member components. Members should be dynamically added from the backend */}
+                  <Member name="Patrick Bateman" isOwner="true"/>
+                  <Member name="Andrew 'Spider-Man' Garfield" isOwner="false"/>
+                  <Member name="Jennifer Lawrence" isOwner="false"/>
+                  <Member isAFK="true"/>
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+                  <Member />
+              </div>
+          </div>
+          
+          <div className="p-4 flex flex-col justify-between">
+              <hr className="my-6 border-gray-200 dark:border-gray-400" />
+              
+              {/* Button for Room Settings */}
+              <Button variant="outlined" color="inherit" startIcon={<RoomPreferencesIcon />} className="flex-grow">
+                  Room Settings
               </Button>
-
-              <hr class="my-6 border-gray-200 dark:border-gray-400" />
-              <Button variant="contained" color="success" endIcon={<ShareIcon />}>
-                Share
+              
+              <hr className="my-6 border-gray-200 dark:border-gray-400" />
+              
+              {/* Button for Sharing */}
+              <Button variant="contained" color="success" endIcon={<ShareIcon />} className="flex-grow">
+                  Share
               </Button>
-            </div>
           </div>
       </div>
 
