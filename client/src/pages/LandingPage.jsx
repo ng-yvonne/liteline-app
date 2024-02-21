@@ -1,9 +1,9 @@
-import Login from "../components/authenticator/Login";
+import Authenticator from "../components/authenticator/Authenticator";
 
 const LandingPage = () => {
   return (
     <div className="container-center justify-center">
-      <Login />
+      <Authenticator />
     </div>
   );
 };
