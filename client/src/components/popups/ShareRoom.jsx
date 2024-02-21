@@ -85,6 +85,9 @@ const ShareRoom = ({ roomName, roomCode }) => {
               fullWidth
               variant="outlined"
               value={roomCode}
+              InputProps={{
+                readOnly: true,
+              }}
             />
             <Button
               variant="contained"
