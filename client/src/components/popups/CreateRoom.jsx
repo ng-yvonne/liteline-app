@@ -56,7 +56,7 @@ const CreateRoom = () => {
           },
         }}
       >
-        <DialogTitle>Customize Your Room</DialogTitle>
+        <DialogTitle>Create Your Room</DialogTitle>
         <IconButton
           aria-label="close"
           onClick={handleClose}

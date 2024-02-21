@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
-import ShareIcon from "@mui/icons-material/Share";
+
 import Divider from "@mui/material/Divider";
 import Chatbox from "../components/chatbox/Chatbox";
 import Member from "../components/member/Member";
@@ -9,12 +9,14 @@ import JoinRoom from "../components/popups/JoinRoom";
 import CreateRoom from "../components/popups/CreateRoom";
 import UserSettings from "../components/popups/UserSettings";
 import RoomSettings from "../components/popups/RoomSettings";
+import ShareRoom from "../components/popups/ShareRoom";
 
 const ChatRoom = () => {
   const { id } = useParams(); // unique id for each chat room
   const username = "Bob"; // replace with the actual username
   const roomName = "CPSC 559 Study Group";
   const isRoomOwner = true;
+  const roomCode = "123456"
 
   return (
     <div className="container-center flex-row justify-between">
@@ -141,14 +143,7 @@ const ChatRoom = () => {
           <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
           {/* Button for Sharing */}
-          <Button
-            variant="contained"
-            color="success"
-            endIcon={<ShareIcon />}
-            className="flex-grow"
-          >
-            Share
-          </Button>
+          <ShareRoom roomName={roomName} roomCode={roomCode}/>
         </div>
       </div>
     </div>
