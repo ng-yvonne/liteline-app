@@ -1,4 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -12,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 const CreateRoom = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -29,6 +31,7 @@ const CreateRoom = () => {
     console.log(roomName);
     // room name doesn't need to be unique
     // create and redirect to new room
+    navigate("/chatroom/" + roomName); // should use room code generated from back end
     handleClose();
   };
 

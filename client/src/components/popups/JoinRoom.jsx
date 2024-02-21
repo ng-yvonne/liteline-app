@@ -1,4 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -12,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 const JoinRoom = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -28,7 +30,9 @@ const JoinRoom = () => {
     const roomId = formJson.roomId;
     console.log(roomId);
     // verify if room existed
-    // redirect if yes; show error message if no -> setMessage()
+    // redirect if yes
+    navigate("/chatroom/" + roomId);
+    // show error message if no -> setMessage()
     handleClose();
   };
 
