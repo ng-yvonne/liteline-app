@@ -1,26 +1,19 @@
 import { useParams } from "react-router-dom";
 import Divider from "@mui/material/Divider";
 import Chatbox from "../components/chatbox/Chatbox";
-// import Member from "../components/member/Member";
-// import Room from "../components/member/Room";
-// import JoinRoom from "../components/popups/JoinRoom";
-// import CreateRoom from "../components/popups/CreateRoom";
-// import UserSettings from "../components/popups/UserSettings";
-// import RoomSettings from "../components/popups/RoomSettings";
-// import ShareRoom from "../components/popups/ShareRoom";
 import RightSidebar from "../components/sidebars/RightSidebar";
 import LeftSidebar from "../components/sidebars/LeftSidebar";
 
 const ChatRoom = () => {
-  const { id } = useParams(); // unique id for each chat room
+  const { roomCode } = useParams(); // unique id for each chat room
   const username = "Bob"; // replace with the actual username
-  const roomName = "CPSC 559 Study Group";
-  const isRoomOwner = true;
+  const roomName = "CPSC 559 Study Group"; // placeholder for room name
+  const isRoomOwner = true; // true if current user == room owner; false otherwise
 
   return (
     <div className="container-center flex-row justify-between">
       {/* Left Sidebar */}
-      <LeftSidebar/>
+      <LeftSidebar />
 
       <Divider orientation="vertical" flexItem />
 
@@ -35,9 +28,13 @@ const ChatRoom = () => {
       </div>
 
       <Divider orientation="vertical" flexItem />
-      {/* Right Sidebar */}
-      <RightSidebar roomName={roomName} isRoomOwner={isRoomOwner} id={id}/>
 
+      {/* Right Sidebar */}
+      <RightSidebar
+        roomName={roomName}
+        isRoomOwner={isRoomOwner}
+        roomCode={roomCode}
+      />
     </div>
   );
 };

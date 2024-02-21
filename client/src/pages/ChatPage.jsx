@@ -7,7 +7,7 @@ const ChatPage = () => {
   return (
     <Routes>
       <Route index element={<ChatLobby />} />
-      <Route path=":id" element={<ChatRoom />} />
+      <Route path=":roomCode" element={<ChatRoom />} />
     </Routes>
   );
 };
