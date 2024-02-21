@@ -1,6 +1,4 @@
 import { useParams } from "react-router-dom";
-import Button from "@mui/material/Button";
-
 import Divider from "@mui/material/Divider";
 import Chatbox from "../components/chatbox/Chatbox";
 import Member from "../components/member/Member";
@@ -16,7 +14,6 @@ const ChatRoom = () => {
   const username = "Bob"; // replace with the actual username
   const roomName = "CPSC 559 Study Group";
   const isRoomOwner = true;
-  const roomCode = "123456"
 
   return (
     <div className="container-center flex-row justify-between">
@@ -143,7 +140,7 @@ const ChatRoom = () => {
           <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
           {/* Button for Sharing */}
-          <ShareRoom roomName={roomName} roomCode={roomCode}/>
+          <ShareRoom roomName={roomName} roomCode={id} />
         </div>
       </div>
     </div>
