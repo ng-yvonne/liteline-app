@@ -82,10 +82,12 @@ const CreateRoom = () => {
             type="text"
             fullWidth
             variant="outlined"
+            color="secondary"
           />
           <Button
             type="submit"
             variant="contained"
+            color="secondary"
             startIcon={<AddRoundedIcon />}
           >
             Create Room

@@ -4,7 +4,6 @@ import Tab from "@mui/material/Tab";
 import SignIn from "./Signin";
 import SignUp from "./Signup";
 import PropTypes from "prop-types";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
 const Authenticator = () => {
@@ -49,7 +48,7 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box sx={{ pt: 3 }}>
-          <Typography>{children}</Typography>
+          <div>{children}</div>
         </Box>
       )}
     </div>
