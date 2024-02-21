@@ -1,17 +1,16 @@
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
-import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import DeleteRoom from "./DeleteRoom";
-import LeaveRoom from "./LeaveRoom";
 
-const RoomSettings = ({ roomName, isOwner }) => {
+const LeaveRoom = ({ roomName }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -21,16 +20,16 @@ const RoomSettings = ({ roomName, isOwner }) => {
     setOpen(false);
   };
 
+  const leaveRoom = () => {
+    // remove this member from the room
+    // redirect to lobby
+    navigate("/chatroom");
+  };
+
   return (
     <Fragment>
-      <Button
-        variant="outlined"
-        color="inherit"
-        startIcon={<RoomPreferencesIcon />}
-        className="flex-grow"
-        onClick={handleOpen}
-      >
-        Room Settings
+      <Button color="error" variant="contained" onClick={handleOpen}>
+        Leave Room
       </Button>
       <Dialog
         open={open}
@@ -39,7 +38,7 @@ const RoomSettings = ({ roomName, isOwner }) => {
           component: "div",
         }}
       >
-        <DialogTitle>Room Settings</DialogTitle>
+        <DialogTitle>Leave Room</DialogTitle>
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -54,16 +53,23 @@ const RoomSettings = ({ roomName, isOwner }) => {
         </IconButton>
         <DialogContent dividers className="flex flex-col gap-5">
           <DialogContentText>
-            There is no going back of below actions. Please be certain.
+            Are you sure you want to leave <b>{roomName}</b>? You won't be able
+            to rejoin this room unless you are re-invited.
           </DialogContentText>
 
-          <LeaveRoom roomName={roomName} />
-
-          {isOwner && <DeleteRoom roomName={roomName} />}
+          <Button
+            color="error"
+            variant="contained"
+            onClick={leaveRoom}
+            className="flex gap-1.5"
+          >
+            {`Yes, I want to leave `}
+            {<b>{roomName}</b>}
+          </Button>
         </DialogContent>
       </Dialog>
     </Fragment>
   );
 };
 
-export default RoomSettings;
+export default LeaveRoom;

@@ -1,17 +1,16 @@
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
-import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import DeleteRoom from "./DeleteRoom";
-import LeaveRoom from "./LeaveRoom";
 
-const RoomSettings = ({ roomName, isOwner }) => {
+const DeleteRoom = ({ roomName }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpen = () => {
     setOpen(true);
@@ -21,16 +20,17 @@ const RoomSettings = ({ roomName, isOwner }) => {
     setOpen(false);
   };
 
+  const deleteRoom = () => {
+    // delete the room
+    // cascade delete all members
+    // redirect to lobby
+    navigate("/chatroom");
+  };
+
   return (
     <Fragment>
-      <Button
-        variant="outlined"
-        color="inherit"
-        startIcon={<RoomPreferencesIcon />}
-        className="flex-grow"
-        onClick={handleOpen}
-      >
-        Room Settings
+      <Button color="secondary" variant="contained" onClick={handleOpen}>
+        Delete Room
       </Button>
       <Dialog
         open={open}
@@ -39,7 +39,7 @@ const RoomSettings = ({ roomName, isOwner }) => {
           component: "div",
         }}
       >
-        <DialogTitle>Room Settings</DialogTitle>
+        <DialogTitle>Delete Room</DialogTitle>
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -54,16 +54,24 @@ const RoomSettings = ({ roomName, isOwner }) => {
         </IconButton>
         <DialogContent dividers className="flex flex-col gap-5">
           <DialogContentText>
-            There is no going back of below actions. Please be certain.
+            Are you sure you want to delete <b>{roomName}</b>? This will
+            permanently delete the room <b>{roomName}</b>, chat history, and
+            remove all members.
           </DialogContentText>
 
-          <LeaveRoom roomName={roomName} />
-
-          {isOwner && <DeleteRoom roomName={roomName} />}
+          <Button
+            color="error"
+            variant="contained"
+            onClick={deleteRoom}
+            className="flex gap-1.5"
+          >
+            {`Yes, I want to delete `}
+            {<b>{roomName}</b>}
+          </Button>
         </DialogContent>
       </Dialog>
     </Fragment>
   );
 };
 
-export default RoomSettings;
+export default DeleteRoom;
