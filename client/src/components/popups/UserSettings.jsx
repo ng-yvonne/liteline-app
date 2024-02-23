@@ -74,11 +74,10 @@ const UserSettings = (props) => {
           <div className="flex flex-col gap-2">
             <TextField
               autoFocus
-              required
               margin="dense"
               id="username"
               name="username"
-              label="New Username"
+              label="Username"
               type="text"
               disabled={!isEditing}
               fullWidth
