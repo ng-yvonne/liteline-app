@@ -3,10 +3,10 @@ import Divider from "@mui/material/Divider";
 import Chatbox from "../components/chatbox/Chatbox";
 import RightSidebar from "../components/sidebars/RightSidebar";
 import LeftSidebar from "../components/sidebars/LeftSidebar";
+import { connect } from "react-redux";
 
 const ChatRoom = () => {
   const { roomCode } = useParams(); // unique id for each chat room
-  const username = "Bob"; // replace with the actual username
   const roomName = "CPSC 559 Study Group"; // placeholder for room name
   const isRoomOwner = true; // true if current user == room owner; false otherwise
 
@@ -23,7 +23,7 @@ const ChatRoom = () => {
         </div>
 
         <div className="flex flex-row w-full h-full max-h-full max-w-full">
-          <Chatbox username={username} />
+          <Chatbox />
         </div>
       </div>
 
