@@ -1,33 +1,73 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import "./Chatbox.css"; // import CSS for styling
 import { Button } from "@mui/material";
 import Message from "./Message";
 import { connect } from "react-redux";
 import axios from "axios";
+import { SocketContext } from "../../SocketProvider";
 
 // Chatbox component to display the chat interface
 const Chatbox = (props) => {
+  const socket = useContext(SocketContext);
   const { username, roomid } = props;
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef(null);
+  const roomRef = useRef(roomid);
 
-  // ws and ws event listener for receiving messages
+  useEffect(() => {
+    roomRef.current = roomid;
+  }, [roomid]);
+
+  // socket for receiving and sending messages
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.connect();
+
+    socket.on("message", (data) => {
+      if (data) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: data.sender,
+            content: data.content,
+            timestamp: data.timestamp,
+          },
+        ]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   // Load this room's message log
   useEffect(() => {
     if (roomid) {
-
+      axios.get("/messages/" + roomid).then((res) => {
+        console.log("Loaded from db: ", res.data);
+        const messagesArr = res.data;
+        // const messageLog = [];
+        // for (const { sender, text } of messagesArr) {
+        //   messageLog.push({ username: sender, content: text });
+        // }
+        // setMessages(messageLog);
+      });
     }
-  }, [roomid])
+  }, [roomid]);
 
   // Function to handle sending messages
   const sendMessage = () => {
     if (inputValue.trim() !== "") {
       const newMessage = {
+        sender: username,
         content: inputValue,
         timestamp: new Date().toISOString(), // Add timestamp when message is sent
       };
+
+      socket.emit("message", { ...newMessage, room: roomid });
       setMessages([...messages, newMessage]);
       setInputValue("");
     }

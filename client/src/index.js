@@ -8,6 +8,7 @@ import reportWebVitals from "./reportWebVitals";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import store from "./Store";
+import { SocketProvider } from "./SocketProvider";
 
 // const root = ReactDOM.createRoot(document.getElementById("root"));
 // root.render(
@@ -24,11 +25,13 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
-      </BrowserRouter>
+      <SocketProvider>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
+        </BrowserRouter>
+      </SocketProvider>
     </Provider>
   </React.StrictMode>
 );
