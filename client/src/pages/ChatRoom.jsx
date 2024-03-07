@@ -23,7 +23,7 @@ const ChatRoom = () => {
         </div>
 
         <div className="flex flex-row w-full h-full max-h-full max-w-full">
-          <Chatbox />
+          <Chatbox roomid={roomCode}/>
         </div>
       </div>
 

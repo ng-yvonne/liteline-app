@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+
 const Message = ({ message, username }) => {
   const getMessageTimestamp = (messageDate) => {
     const messageDateTime = new Date(messageDate);
@@ -38,4 +39,5 @@ const Message = ({ message, username }) => {
 const mapStateToProps = (state) => ({
   username: state.username,
 });
+
 export default connect(mapStateToProps)(Message);

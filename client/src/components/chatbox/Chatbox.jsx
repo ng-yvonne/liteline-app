@@ -3,13 +3,23 @@ import "./Chatbox.css"; // import CSS for styling
 import { Button } from "@mui/material";
 import Message from "./Message";
 import { connect } from "react-redux";
+import axios from "axios";
 
 // Chatbox component to display the chat interface
 const Chatbox = (props) => {
-  const username = props.username;
+  const { username, roomid } = props;
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef(null);
+
+  // ws and ws event listener for receiving messages
+
+  // Load this room's message log
+  useEffect(() => {
+    if (roomid) {
+
+    }
+  }, [roomid])
 
   // Function to handle sending messages
   const sendMessage = () => {
