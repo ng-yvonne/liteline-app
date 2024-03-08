@@ -35,16 +35,10 @@ app.use(
 
 const client = new pg.Client(config);
 
-// password authentication failed for user
 client.connect((err) => {
   if (err) throw err;
   else {
     console.log("Conncted to Azure DB.");
-    const t = new Date(Date.now()).toISOString();
-    const roomID = "2";
-    const senderUUID = uuidv4();
-    const message = "test";
-    // insertMessage(t, roomID, senderUUID, message);
   }
 });
 
@@ -55,26 +49,23 @@ app.get("/test", (req, res) => {
 app.get("/messages/:roomid", async (req, res) => {
   const { roomid } = req.params;
 
-  // TODO: check if user is in room
-  // get user data from token
+  // TODO: get user data from cookie > check if user is in room >
   // query database
+  const query = `SELECT * FROM messages WHERE room = $1`
+  const values = [roomid];
 
-  // query database for all messages in the room
-  const messages = ["msg1", "msg2"];
-
-  res.json(messages);
-});
-
-function insertMessage(timestamp, roomID, sender, message) {
-  const query = `INSERT INTO messages (timestamp, sender, message) VALUES (\'${timestamp}\', \'${sender}\', \'${message}\')`;
-  console.log(query);
   client
-    .query(query)
-    .then(() => {
-      console.log("Message sent to DB.");
-    })
-    .catch((err) => console.log(err));
-}
+      .query(query, values)
+      .then((response) => {
+        const messages = response.rows;
+        
+        res.json(messages);
+      })
+      .catch((err) => 
+      console.log(err)
+      // TODO: Failure recovery
+      );
+});
 
 // app.get("/messages/:roomid", async (req, res) => {
 //   const { roomnid } = req.params;
@@ -108,7 +99,7 @@ io.on("connection", (socket) => {
   console.log(`${socket.id} connected.`);
   // TODO: Compute user info from headers.cookies
   const cookies = socket.request.headers.cookies;
-  console.log("User cookies: ", cookies);
+  // console.log("User cookies: ", cookies);
   // if (cookies) {
   //   const cookieTokenStr = cookies
   //     .split(";")
@@ -155,7 +146,6 @@ io.on("connection", (socket) => {
 
   // Receive message > Store message in db > broadcast received message to roomies
   socket.on("message", (data) => {
-    console.log(`${socket.id} sent:`, data);
     const { sender, content, timestamp, room } = data;
     // TODO: get sender id from socket.userId after merging with auth stuff
     const senderId = "21ee62ed-0f62-4f5e-8535-a5e5954199bc";
@@ -165,7 +155,6 @@ io.on("connection", (socket) => {
     client
       .query(query, values)
       .then(() => {
-        console.log("Message sent to DB.");
         socket.to(room).emit("message", { sender, content, timestamp, room});
       })
       .catch((err) => 

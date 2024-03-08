@@ -43,17 +43,17 @@ const Chatbox = (props) => {
     };
   }, [socket]);
 
-  // Load this room's message log
+  // Load room's message log from db
   useEffect(() => {
     if (roomid) {
       axios.get("/messages/" + roomid).then((res) => {
         console.log("Loaded from db: ", res.data);
         const messagesArr = res.data;
-        // const messageLog = [];
-        // for (const { sender, text } of messagesArr) {
-        //   messageLog.push({ username: sender, content: text });
-        // }
-        // setMessages(messageLog);
+        const messageLog = [];
+        for (const { message, sender, timestamp } of messagesArr) {
+          messageLog.push({ sender, content: message, timestamp });
+        }
+        setMessages(messageLog);
       });
     }
   }, [roomid]);
