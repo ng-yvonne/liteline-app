@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { useRegisterMutation } from "../../store/user/userApiSlice";
+import { setCredentials } from "../../store/user/authSlice";
 
 const defaultFormFields = {
   username: "",
@@ -11,6 +15,9 @@ const SignUp = () => {
   const [userCredential, setUserCredential] = useState(defaultFormFields);
   const [message, setMessage] = useState("");
   const { username, password } = userCredential;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const resetFormFields = () => {
     setUserCredential(defaultFormFields);
@@ -24,12 +31,14 @@ const SignUp = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(username);
-    console.log(password);
-    // sign up process:
-    // request to backend -> check if unique username
-    // set user state if success
-    // show error message if fail -> setMessage()
+
+    try {
+      const res = await register({ username, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate("/chatroom");
+    } catch (err) {
+      setMessage(err?.data?.message || err.error);
+    }
     resetFormFields();
   };
 

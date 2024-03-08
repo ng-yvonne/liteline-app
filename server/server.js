@@ -7,9 +7,8 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const { Server } = require("socket.io");
 const { createServer } = require("node:http");
-
-// TODO: remove after testing
-const { v4: uuidv4 } = require("uuid");
+const userRoutes = require("./routes/userRoutes");
+const roomRoutes = require("./routes/roomRoutes");
 
 dotenv.config();
 const config = {
@@ -25,13 +24,19 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-app.use(express.json());
 app.use(
   cors({
     credentials: true,
     origin: process.env.CLIENT_URL,
   })
 );
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// routes/endpoints
+app.use("/api/users", userRoutes);
+app.use("/api/rooms", roomRoutes);
 
 const client = new pg.Client(config);
 

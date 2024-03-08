@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Divider from "@mui/material/Divider";
 import Chatbox from "../components/chatbox/Chatbox";
 import RightSidebar from "../components/sidebars/RightSidebar";
@@ -13,6 +13,7 @@ const ChatRoom = (props) => {
   const { username } = props;
   const roomName = "CPSC 559 Study Group"; // placeholder for room name
   const isRoomOwner = true; // true if current user == room owner; false otherwise
+  const { roomInfo } = useSelector((state) => state.room);
 
   useEffect(() => {
     if (!socket) return;
@@ -38,7 +39,7 @@ const ChatRoom = (props) => {
 
       <div className="flex flex-col w-4/5 min-w-fit h-full items-center">
         <div className="flex border-b-2 w-full h-16 justify-center items-center">
-          {roomName}
+          {roomInfo.roomName}
         </div>
 
         <div className="flex flex-row w-full h-full max-h-full max-w-full">
@@ -49,11 +50,7 @@ const ChatRoom = (props) => {
       <Divider orientation="vertical" flexItem />
 
       {/* Right Sidebar */}
-      <RightSidebar
-        roomName={roomName}
-        isRoomOwner={isRoomOwner}
-        roomCode={roomCode}
-      />
+      <RightSidebar />
     </div>
   );
 };
