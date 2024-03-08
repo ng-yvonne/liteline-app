@@ -2,14 +2,16 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import "./Chatbox.css"; // import CSS for styling
 import { Button } from "@mui/material";
 import Message from "./Message";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import axios from "axios";
 import { SocketContext } from "../../SocketProvider";
 
 // Chatbox component to display the chat interface
 const Chatbox = (props) => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const username = userInfo.username
   const socket = useContext(SocketContext);
-  const { username, roomid } = props;
+  const { roomid } = props;
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef(null);
@@ -63,7 +65,7 @@ const Chatbox = (props) => {
   const sendMessage = () => {
     if (inputValue.trim() !== "") {
       const newMessage = {
-        sender: username,
+        sender: userInfo.uid,
         content: inputValue,
         timestamp: new Date().toISOString(), // Add timestamp when message is sent
       };

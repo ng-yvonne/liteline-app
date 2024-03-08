@@ -10,11 +10,11 @@ const LeftSidebar = (props) => {
 
   // Fetch user's list of joined room(s)
   useEffect(() => {
-    axios.get("/userRooms/").then((res) => {
-      const userRooms = res.data;
-      
-      if (userRooms) {
-        setJoinedRooms(userRooms);
+    axios.get("/rooms/getRooms").then((res) => {
+      const userRoomsInfo = res.data;
+      // console.log(userRoomsInfo);
+      if (userRoomsInfo) {
+        setJoinedRooms(userRoomsInfo);
       }
     });
   }, [])
@@ -28,8 +28,8 @@ const LeftSidebar = (props) => {
           id="roomContainer"
           className="overflow-y-auto flex flex-col items-center items-stretch space-y-3 h-full"
         >
-          {joinedRooms.map((room, index) => (
-            <Room key={index} name={room} link={`/chatroom/${room}`}/>
+          {joinedRooms.map((room) => (
+            <Room key={room.id} name={room.name} link={`/chatroom/${room.id}`}/>
           ))}
         </div>
       </div>

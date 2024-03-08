@@ -8,13 +8,14 @@ const SocketProvider = ({ children }) => {
   // "undefined" means the URL will be computed from the `window.location` object
   // add a server if/when deplyed
   const URL =
-    process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000";
+    process.env.NODE_ENV === "production" ? undefined : "http://localhost:5000";
 
   useEffect(() => {
-    const newSocket = io(URL, { autoConnect: false });
+
+    const newSocket = io(URL, { autoConnect: false, withCredentials: true } );
     setSocket(newSocket);
 
-    return () => newSocket.close();
+    return () => newSocket.disconnect();
   }, []);
 
   return (

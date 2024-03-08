@@ -13,6 +13,7 @@ const sequelize = new Sequelize({
       require: dbConfig.SSL,
     },
   },
+  logging: false,
 });
 
 sequelize

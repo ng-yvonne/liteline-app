@@ -176,9 +176,36 @@ const deleteRoom = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @desc get all rooms belonging to the user
+ * @route Get /api/rooms/getRooms
+ * @access private
+ */
+
+const getRooms = asyncHandler(async (req, res) => {
+  const user = await User.findByPk(req.user.uid);
+
+  if (user) {
+    const rooms = user.rooms;
+    const roomnames = await Room.findAll({
+      where: {
+        id: rooms,
+      },
+    });
+    const userRoomsInfo = roomnames.map((room) => {
+      return { id: room.id, name: room.name };
+    });
+
+    return res.status(200).json(userRoomsInfo);
+  } else {
+    return res.status(400).send({ message: "Invalid user." });
+  }
+});
+
 module.exports = {
   createRoom,
   joinRoom,
   leaveRoom,
   deleteRoom,
+  getRooms,
 };

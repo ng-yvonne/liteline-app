@@ -13,13 +13,14 @@ const roomRoutes = require("./routes/roomRoutes");
 dotenv.config();
 const config = {
   host: "chatroom-db.postgres.database.azure.com",
-  user: process.env.USER,
-  password: process.env.PASSWORD,
+  user: process.env.PSQL_USERNAME,
+  password: process.env.PSQL_PASSWORD,
   database: "chatroom_prod",
   port: 5432,
   ssl: true,
 };
-const PORT = process.env.PORT || 4000;
+const jwtSecret = process.env.JWT_SECRET;
+const PORT = process.env.PORT || 5000;
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
@@ -51,7 +52,7 @@ app.get("/test", (req, res) => {
   res.json("test ok");
 });
 
-app.get("/messages/:roomid", async (req, res) => {
+app.get("/api/messages/:roomid", async (req, res) => {
   const { roomid } = req.params;
 
   // TODO: get user data from cookie > check if user is in room >
@@ -72,73 +73,49 @@ app.get("/messages/:roomid", async (req, res) => {
     );
 });
 
-app.get("/userRooms/", async (req, res) => {
-  // TODO: get userdata (senderId aka uid) from cookie
-  const senderId = "21ee62ed-0f62-4f5e-8535-a5e5954199bc";
-
-  const query = `SELECT rooms FROM users WHERE uid = $1`;
-  const values = [senderId];
-
-  client
-    .query(query, values)
-    .then((response) => {
-      const roomIds = response.rows[0].rooms;
-      const rooms = [];
-      // roomIds.forEach((room) => {
-      //   const q = `SELECT name FROM chatrooms WHERE id = $1`;
-      //   const v = [room];
-
-      //   client.query(q, v).then((resp) => {
-      //     rooms.push({ id: room, name: resp.rows[0].name });
-      //   });
-      //   console.log(rooms);
-      // });
-      res.json(roomIds);
-    })
-    .catch(
-      (err) => console.log(err)
-      // TODO: Failure recovery
-    );
-});
-
 io.on("connection", (socket) => {
-  console.log(`${socket.id} connected.`);
-  // TODO: Compute user info from headers.cookies
-  const cookies = socket.request.headers.cookies;
-  // console.log("User cookies: ", cookies);
-  // if (cookies) {
-  //   const cookieTokenStr = cookies
-  //     .split(";")
-  //     .find((str) => str.startsWith("token="));
-  //   if (cookieTokenStr) {
-  //     const token = cookieTokenStr.split("=")[1];
-  //     if (token) {
-  //       jwt.verify(token, jwtSecret, {}, (err, userData) => {
-  //         if (err) throw err;
-  //         const { userId, username } = userData;
-  //         socket.userId = userId;
-  //         socket.username = username;
-  //       });
-  //     }
-  //   }
-  // }
+  
+  const cookies = socket.request.headers.cookie;
+  
+  if (cookies) {
+    const cookieTokenStr = cookies
+      .split(";")
+      .find((str) => str.startsWith("jwt="));
+    if (cookieTokenStr) {
+      const token = cookieTokenStr.split("=")[1];
+      if (token) {
+        jwt.verify(token, jwtSecret, {}, (err, userData) => {
+          if (err) throw err;
+          const { userId } = userData;
+          socket.userId = userId;
+          console.log(`User Id: ${socket.userId} >> connected.`);
+        });
+      }
+    }
+  }
 
   // set user status to online by adding them to all rooms
   socket.on("online", async () => {
-    // TODO: use socket.userId to query database which room(s) user is in
-    const userRooms = ["1"];
+    const query = `SELECT rooms FROM users WHERE uid = $1`;
+    const values = [socket.userId];
 
-    userRooms.forEach((room) => {
-      socket.join(room);
-    });
+    client
+      .query(query, values)
+      .then((response) => {
+        console.log(`User Id: ${socket.userId} rooms:`, response.rows[0].rooms);
+        const userRooms = response.rows[0].rooms;
+        userRooms.forEach((room) => {
+          socket.join(room);
+        });
+      })
 
     // Getting sockets from room
-    const roomies = await io.in("1").fetchSockets();
-    roomies.forEach((sock) => {
-      console.log("Sock-id:", sock.id);
-    });
+    // const roomies = await io.in("1").fetchSockets();
+    // roomies.forEach((sock) => {
+    //   console.log("Sock-id:", sock.id);
+    // });
 
-    // broadcast room list to everybody so they can update their online member list
+    // TODO: broadcast room list to everybody so they can update their online member list
   });
 
   // join room
@@ -153,8 +130,7 @@ io.on("connection", (socket) => {
   // Receive message > Store message in db > broadcast received message to roomies
   socket.on("message", (data) => {
     const { sender, content, timestamp, room } = data;
-    // TODO: get sender id from socket.userId after merging with auth stuff
-    const senderId = "21ee62ed-0f62-4f5e-8535-a5e5954199bc";
+    const senderId = socket.userId;
     const query = `INSERT INTO messages (timestamp, room, sender, message) VALUES ($1, $2, $3, $4)`;
     const values = [timestamp, room, senderId, content];
 

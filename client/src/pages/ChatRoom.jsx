@@ -6,6 +6,7 @@ import LeftSidebar from "../components/sidebars/LeftSidebar";
 import { connect } from "react-redux";
 import { SocketContext } from "../SocketProvider";
 import { useEffect, useContext } from "react";
+import { useParams } from "react-router";
 
 const ChatRoom = (props) => {
   const socket = useContext(SocketContext);
@@ -39,7 +40,7 @@ const ChatRoom = (props) => {
 
       <div className="flex flex-col w-4/5 min-w-fit h-full items-center">
         <div className="flex border-b-2 w-full h-16 justify-center items-center">
-          {roomInfo.roomName}
+          {roomInfo && roomInfo.roomName}
         </div>
 
         <div className="flex flex-row w-full h-full max-h-full max-w-full">

@@ -5,7 +5,7 @@ import ChatPage from "./pages/ChatPage";
 import axios from "axios";
 
 const App = () => {
-  axios.defaults.baseURL = "http://localhost:4000";
+  axios.defaults.baseURL = "http://localhost:5000/api";
   axios.defaults.withCredentials = true;
   
   return (
