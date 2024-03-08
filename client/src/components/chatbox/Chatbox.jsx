@@ -47,12 +47,13 @@ const Chatbox = (props) => {
   useEffect(() => {
     if (roomid) {
       axios.get("/messages/" + roomid).then((res) => {
-        console.log("Loaded from db: ", res.data);
         const messagesArr = res.data;
         const messageLog = [];
+
         for (const { message, sender, timestamp } of messagesArr) {
           messageLog.push({ sender, content: message, timestamp });
         }
+        
         setMessages(messageLog);
       });
     }

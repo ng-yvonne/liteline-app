@@ -38,7 +38,7 @@ const client = new pg.Client(config);
 client.connect((err) => {
   if (err) throw err;
   else {
-    console.log("Conncted to Azure DB.");
+    console.log("Connected to Azure DB.");
   }
 });
 
@@ -51,49 +51,50 @@ app.get("/messages/:roomid", async (req, res) => {
 
   // TODO: get user data from cookie > check if user is in room >
   // query database
-  const query = `SELECT * FROM messages WHERE room = $1`
+  const query = `SELECT * FROM messages WHERE room = $1`;
   const values = [roomid];
 
   client
-      .query(query, values)
-      .then((response) => {
-        const messages = response.rows;
-        
-        res.json(messages);
-      })
-      .catch((err) => 
-      console.log(err)
+    .query(query, values)
+    .then((response) => {
+      const messages = response.rows;
+
+      res.json(messages);
+    })
+    .catch(
+      (err) => console.log(err)
       // TODO: Failure recovery
-      );
+    );
 });
 
-// app.get("/messages/:roomid", async (req, res) => {
-//   const { roomnid } = req.params;
-//   // TODO: check if room exists
-//   // get userId from cookie
-//   // const userData = await getUserDataFromToken(req); // TODO: check if user in room
+app.get("/userRooms/", async (req, res) => {
+  // TODO: get userdata (senderId aka uid) from cookie
+  const senderId = "21ee62ed-0f62-4f5e-8535-a5e5954199bc";
 
-//   const query = `SELECT * FROM from messages WHERE roomid=${roomid}`;
-//   const messages = [];
+  const query = `SELECT rooms FROM users WHERE uid = $1`;
+  const values = [senderId];
 
-//   client
-//     .query(query)
-//     .then((res) => {
-//       const rows = res.rows;
+  client
+    .query(query, values)
+    .then((response) => {
+      const roomIds = response.rows[0].rooms;
+      const rooms = [];
+      // roomIds.forEach((room) => {
+      //   const q = `SELECT name FROM chatrooms WHERE id = $1`;
+      //   const v = [room];
 
-//       rows.map((row) => {
-//         console.log(`Read: ${JSON.stringify(row)}`);
-//         // TODO: append message data into messages array
-//       });
-
-//       process.exit();
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-
-//   res.json(messages);
-// });
+      //   client.query(q, v).then((resp) => {
+      //     rooms.push({ id: room, name: resp.rows[0].name });
+      //   });
+      //   console.log(rooms);
+      // });
+      res.json(roomIds);
+    })
+    .catch(
+      (err) => console.log(err)
+      // TODO: Failure recovery
+    );
+});
 
 io.on("connection", (socket) => {
   console.log(`${socket.id} connected.`);
@@ -155,11 +156,11 @@ io.on("connection", (socket) => {
     client
       .query(query, values)
       .then(() => {
-        socket.to(room).emit("message", { sender, content, timestamp, room});
+        socket.to(room).emit("message", { sender, content, timestamp, room });
       })
-      .catch((err) => 
-      console.log(err)
-      // TODO: Failure recovery
+      .catch(
+        (err) => console.log(err)
+        // TODO: Failure recovery
       );
   });
 
