@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -7,10 +8,13 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import { useLeaveRoomMutation } from "../../store/room/roomApiSlice";
 
-const LeaveRoom = ({ roomName }) => {
+const LeaveRoom = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [leaveRoom, { isLoading }] = useLeaveRoomMutation();
+  const { roomInfo } = useSelector((state) => state.room);
 
   const handleOpen = () => {
     setOpen(true);
@@ -20,10 +24,13 @@ const LeaveRoom = ({ roomName }) => {
     setOpen(false);
   };
 
-  const leaveRoom = () => {
-    // remove this member from the room
-    // redirect to lobby
-    navigate("/chatroom");
+  const onLeaveRoom = async () => {
+    try {
+      await leaveRoom({ roomCode: roomInfo.roomCode }).unwrap();
+      navigate("/chatroom");
+    } catch (err) {
+      console.log(err?.data?.message || err.error);
+    }
   };
 
   return (
@@ -53,18 +60,18 @@ const LeaveRoom = ({ roomName }) => {
         </IconButton>
         <DialogContent dividers className="flex flex-col gap-5">
           <DialogContentText>
-            Are you sure you want to leave <b>{roomName}</b>? You won't be able
-            to rejoin this room unless you are re-invited.
+            Are you sure you want to leave <b>{roomInfo.roomName}</b>? You won't
+            be able to rejoin this room unless you are re-invited.
           </DialogContentText>
 
           <Button
             color="error"
             variant="contained"
-            onClick={leaveRoom}
+            onClick={onLeaveRoom}
             className="flex gap-1.5"
           >
             {`Yes, I want to leave `}
-            {<b>{roomName}</b>}
+            {<b>{roomInfo.roomName}</b>}
           </Button>
         </DialogContent>
       </Dialog>

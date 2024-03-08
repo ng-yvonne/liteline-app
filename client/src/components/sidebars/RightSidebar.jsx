@@ -51,12 +51,12 @@ const RightSidebar = (props) => {
         <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
         {/* Button for Room Settings */}
-        <RoomSettings roomName={props.roomName} isOwner={props.isRoomOwner} />
+        <RoomSettings />
 
         <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
         {/* Button for Sharing */}
-        <ShareRoom roomName={props.roomName} roomCode={props.roomCode} />
+        <ShareRoom />
       </div>
     </div>
   );

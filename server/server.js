@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/userRoutes");
+const roomRoutes = require("./routes/roomRoutes");
 
 const port = process.env.PORT || 5000;
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes/endpoints
 app.use("/api/users", userRoutes);
+app.use("/api/rooms", roomRoutes);
 
 app.get("/", (req, res) => {
   res.json("hello backend");

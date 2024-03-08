@@ -12,8 +12,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    res.status(400); //400 Bad Request
-    throw new Error("Please fill in all fields");
+    res.status(400).send({ message: "Please fill in all fields" }); //400 Bad Request
   }
 
   // check to see if username already exists in the user database
@@ -38,6 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.status(201).json({
       uid: user.uid,
       username: user.username,
+      rooms: user.rooms,
     });
   } else {
     return res
@@ -70,6 +70,7 @@ const loginUser = asyncHandler(async (req, res) => {
     return res.status(200).json({
       uid: user.uid,
       username: user.username,
+      rooms: user.rooms,
     });
   } else {
     return res.status(401).send({ message: "Invalid username or password" });
@@ -95,7 +96,7 @@ const logoutUser = (req, res) => {
  * @access private
  */
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.uid);
+  const user = await User.findByPk(req.user.uid);
 
   if (user) {
     res.status(200).json({
@@ -104,8 +105,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       rooms: user.rooms,
     });
   } else {
-    res.status(404);
-    throw new Error("User not found");
+    res.status(404).send({ message: "User not found" });
   }
 });
 
@@ -143,6 +143,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     return res.status(200).json({
       uid: user.uid,
       username: user.username,
+      rooms: user.rooms,
     });
   } else {
     return res.status(404).send({ message: "User not found" });

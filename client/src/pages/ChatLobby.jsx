@@ -1,19 +1,22 @@
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SignOut from "../components/authenticator/Signout";
 import CreateRoom from "../components/popups/CreateRoom";
 import JoinRoom from "../components/popups/JoinRoom";
+import { setRoomInfo } from "../store/room/roomSlice";
 
 const ChatLobby = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Make sure only logged in user can visit this page
   useEffect(() => {
     if (!userInfo) {
       navigate("/");
     }
+    dispatch(setRoomInfo(null));
   }, []);
 
   return (

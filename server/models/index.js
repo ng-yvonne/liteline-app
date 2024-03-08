@@ -30,6 +30,7 @@ db.sequelize = sequelize;
 
 //connecting to model
 db.users = require("./userModel")(sequelize, DataTypes);
+db.chatrooms = require("./roomModel")(sequelize, DataTypes);
 
 //exporting the module
 module.exports = db;

@@ -1,4 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -9,11 +10,15 @@ import DialogContentText from "@mui/material/DialogContentText";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import { useCreateRoomMutation } from "../../store/room/roomApiSlice";
+import { setRoomInfo } from "../../store/room/roomSlice";
 
 const CreateRoom = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const [createRoom, { isLoading }] = useCreateRoomMutation();
+  const dispatch = useDispatch();
 
   const handleOpen = () => {
     setOpen(true);
@@ -23,21 +28,26 @@ const CreateRoom = () => {
     setOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const roomName = formJson.roomName;
-    console.log(roomName);
-    // room name doesn't need to be unique
-    // create and redirect to new room
-    navigate("/chatroom/" + roomName); // should use room code generated from back end
+
+    try {
+      const res = await createRoom({ roomName }).unwrap();
+      dispatch(setRoomInfo({ ...res }));
+      navigate("/chatroom/" + res.roomCode);
+    } catch (err) {
+      setMessage(err?.data?.message || err.error);
+    }
+
     handleClose();
   };
 
   useEffect(() => {
     setMessage("Give your new room a personality with a name!");
-  }, []);
+  }, [open]);
 
   return (
     <Fragment>

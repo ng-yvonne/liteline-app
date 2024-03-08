@@ -1,4 +1,5 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -10,8 +11,11 @@ import IconButton from "@mui/material/IconButton";
 import DeleteRoom from "./DeleteRoom";
 import LeaveRoom from "./LeaveRoom";
 
-const RoomSettings = ({ roomName, isOwner }) => {
+const RoomSettings = () => {
   const [open, setOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const { roomInfo } = useSelector((state) => state.room);
+  const { userInfo } = useSelector((state) => state.auth);
 
   const handleOpen = () => {
     setOpen(true);
@@ -20,6 +24,10 @@ const RoomSettings = ({ roomName, isOwner }) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    setIsOwner(roomInfo.owner === userInfo.uid);
+  }, [roomInfo, userInfo]);
 
   return (
     <Fragment>
@@ -57,9 +65,9 @@ const RoomSettings = ({ roomName, isOwner }) => {
             There is no going back of below actions. Please be certain.
           </DialogContentText>
 
-          <LeaveRoom roomName={roomName} />
+          <LeaveRoom />
 
-          {isOwner && <DeleteRoom roomName={roomName} />}
+          {isOwner && <DeleteRoom />}
         </DialogContent>
       </Dialog>
     </Fragment>
