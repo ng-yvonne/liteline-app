@@ -4,11 +4,13 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
 const { Server } = require("socket.io");
 const { createServer } = require("node:http");
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const db = require("./models");
+const User = db.users;
+const Room = db.chatrooms;
 
 dotenv.config();
 const config = {
@@ -112,7 +114,7 @@ io.on("connection", (socket) => {
           const sockRef = io.sockets.sockets.get(sockId);
           return { uid: sockRef.userId, username: sockRef.username };
         });
-        io.to(room).emit("online", onlineMembers);
+        io.to(room).emit("online", { roomId: room, onlineList: onlineMembers });
       });
     });
   });
@@ -127,20 +129,54 @@ io.on("connection", (socket) => {
       Array.from(sockets).forEach((sockId) => {
         const sockRef = io.sockets.sockets.get(sockId);
         if (sockRef.userId !== socket.userId) {
-          onlineMembers.push({ uid: sockRef.userId, username: sockRef.username });
+          onlineMembers.push({
+            uid: sockRef.userId,
+            username: sockRef.username,
+          });
         }
       });
-      io.to(room).emit("online", onlineMembers);
+      io.to(room).emit("online", { roomId: room, onlineList: onlineMembers });
     });
   });
 
-  // join room
-  socket.on("joinRoom", (data) => {
-    // data has room id
-    socket.join(data.room);
+  // Event: User joins room >> Send updated online and room member list to room clients
+  socket.on("joinRoom", async (data) => {
+    console.log("User joined room");
+    const roomId = data;
+    const onlineMembers = [];
+    socket.join(roomId);
 
-    // TODO: broadcast updated room list to everybody
-    // console.log(`Users in ${data.room}: ${roomies}`);
+    const sockets = io.sockets.adapter.rooms.get(roomId);
+    Array.from(sockets).forEach((sockId) => {
+      const sockRef = io.sockets.sockets.get(sockId);
+      onlineMembers.push({ uid: sockRef.userId, username: sockRef.username });
+    });
+    const room = await Room.findByPk(roomId);
+    console.log(room);
+
+    if (room) {
+      const owner = room.dataValues.owner;
+      const memberIds = room.dataValues.members;
+      const users = await User.findAll({
+        where: {
+          uid: memberIds,
+        },
+      });
+      const roomMembers = users.map((user) => {
+        const ownerStatus = user.dataValues.uid === owner ? true : false;
+        return {
+          uid: user.dataValues.uid,
+          username: user.dataValues.username,
+          owner: ownerStatus,
+        };
+      });
+
+      io.to(roomId).emit("joinRoom", {
+        roomId: roomId,
+        roomMembers: roomMembers,
+        connected: onlineMembers,
+      });
+    }
   });
 
   // Receive message > Store message in db > broadcast received message to roomies

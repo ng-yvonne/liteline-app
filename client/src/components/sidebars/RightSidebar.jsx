@@ -10,6 +10,7 @@ const RightSidebar = (props) => {
   const socket = useContext(SocketContext);
 
   const [roomMembers, setRoomMembers] = useState([]);
+  const [connected, setConnected] = useState([]);
   const [onlineMembers, setOnlineMembers] = useState([]);
   const [offlineMembers, setOfflineMembers] = useState([]);
 
@@ -17,11 +18,18 @@ const RightSidebar = (props) => {
     if (!socket) return;
 
     socket.on("online", (data) => {
-      if (data) {
-        // console.log("Right side bar: ", data);
-        setOnlineMembers(data);
+      if (data && data.roomId === roomId) {
+        setConnected(data.onlineList);
       }
     });
+
+    socket.on("joinRoom", (data) => {
+      console.log(data)
+      if (data && data.roomId == roomId) {
+        setConnected(data.connected);
+        setRoomMembers(data.roomMembers);
+      }
+    })
 
     return () => {
       socket.disconnect();
@@ -38,17 +46,25 @@ const RightSidebar = (props) => {
   }, [roomId]);
 
   useEffect(() => {
-    // console.log("room members", roomMembers)
+    const online = roomMembers.filter((member) => {
+      if (connected.some(on => on.uid === member.uid)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    
     const offline = roomMembers.filter((member) => {
-      if (onlineMembers.some(on => on.uid === member.uid)) {
+      if (online.some(on => on.uid === member.uid)) {
         return false;
       } else {
         return true
       }
     });
     
+    setOnlineMembers(online);
     setOfflineMembers(offline);
-  }, [roomMembers, onlineMembers]);
+  }, [roomMembers, connected]);
 
   return (
     <div className="flex flex-col justify-between h-full w-1/5 min-w-fit">
