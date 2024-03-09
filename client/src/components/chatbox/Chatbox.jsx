@@ -25,8 +25,6 @@ const Chatbox = (props) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.connect();
-
     socket.on("message", (data) => {
       if (data) {
         setMessages((prev) => [

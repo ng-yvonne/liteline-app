@@ -23,18 +23,18 @@ const ChatRoom = (props) => {
     socket.emit("online"); // emit online status (online)
 
     socket.on("result", (data) => {
-      console.log(data)
-    })
+      console.log(data);
+    });
 
     return () => {
       socket.disconnect();
-    }
-  }, [socket])
+    };
+  }, [socket]);
 
   return (
     <div className="container-center flex-row justify-between">
       {/* Left Sidebar */}
-      <LeftSidebar />
+      <LeftSidebar roomid={roomCode} />
 
       <Divider orientation="vertical" flexItem />
 
@@ -51,7 +51,7 @@ const ChatRoom = (props) => {
       <Divider orientation="vertical" flexItem />
 
       {/* Right Sidebar */}
-      <RightSidebar />
+      <RightSidebar roomid={roomCode} />
     </div>
   );
 };

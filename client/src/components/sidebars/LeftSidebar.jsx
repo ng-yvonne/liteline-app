@@ -6,18 +6,18 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const LeftSidebar = (props) => {
+  const roomId = props.roomid;
   const [joinedRooms, setJoinedRooms] = useState([]);
 
   // Fetch user's list of joined room(s)
   useEffect(() => {
     axios.get("/rooms/getRooms").then((res) => {
       const userRoomsInfo = res.data;
-      // console.log(userRoomsInfo);
       if (userRoomsInfo) {
         setJoinedRooms(userRoomsInfo);
       }
     });
-  }, [])
+  }, [roomId])
 
   return (
     <div className="flex flex-col justify-between w-1/5 min-w-fit h-full">

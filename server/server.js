@@ -74,9 +74,8 @@ app.get("/api/messages/:roomid", async (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  
   const cookies = socket.request.headers.cookie;
-  
+
   if (cookies) {
     const cookieTokenStr = cookies
       .split(";")
@@ -86,36 +85,53 @@ io.on("connection", (socket) => {
       if (token) {
         jwt.verify(token, jwtSecret, {}, (err, userData) => {
           if (err) throw err;
-          const { userId } = userData;
+          const { userId, username } = userData;
           socket.userId = userId;
-          console.log(`User Id: ${socket.userId} >> connected.`);
+          socket.username = username;
+          console.log(`User: ${socket.username} >> connected.`);
         });
       }
     }
   }
 
-  // set user status to online by adding them to all rooms
+  // Add users to all their (socket) rooms -> Broadcast to room members the updated online list
   socket.on("online", async () => {
     const query = `SELECT rooms FROM users WHERE uid = $1`;
     const values = [socket.userId];
+    client.query(query, values).then((response) => {
+      console.log(`User: ${socket.username} rooms:`, response.rows[0].rooms);
+      response.rows[0].rooms.forEach((room) => {
+        socket.join(room);
+      });
 
-    client
-      .query(query, values)
-      .then((response) => {
-        console.log(`User Id: ${socket.userId} rooms:`, response.rows[0].rooms);
-        const userRooms = response.rows[0].rooms;
-        userRooms.forEach((room) => {
-          socket.join(room);
+      // Broadcast online user list to the each room user is in
+      const rooms = Array.from(socket.rooms).splice(1);
+      rooms.forEach((room) => {
+        const sockets = io.sockets.adapter.rooms.get(room);
+        const onlineMembers = Array.from(sockets).map((sockId) => {
+          const sockRef = io.sockets.sockets.get(sockId);
+          return { uid: sockRef.userId, username: sockRef.username };
         });
-      })
+        io.to(room).emit("online", onlineMembers);
+      });
+    });
+  });
 
-    // Getting sockets from room
-    // const roomies = await io.in("1").fetchSockets();
-    // roomies.forEach((sock) => {
-    //   console.log("Sock-id:", sock.id);
-    // });
-
-    // TODO: broadcast room list to everybody so they can update their online member list
+  // Broadcast online user list without user to the each room user was in
+  socket.on("disconnecting", () => {
+    console.log(`${socket.username} disconnected from`, socket.rooms);
+    const rooms = Array.from(socket.rooms).splice(1);
+    rooms.forEach((room) => {
+      const sockets = io.sockets.adapter.rooms.get(room);
+      const onlineMembers = [];
+      Array.from(sockets).forEach((sockId) => {
+        const sockRef = io.sockets.sockets.get(sockId);
+        if (sockRef.userId !== socket.userId) {
+          onlineMembers.push({ uid: sockRef.userId, username: sockRef.username });
+        }
+      });
+      io.to(room).emit("online", onlineMembers);
+    });
   });
 
   // join room

@@ -65,7 +65,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }); // find by username
 
   if (user && (await user.verifyPassword(password))) {
-    generateToken(res, user.uid);
+    generateToken(res, user.uid, username);
 
     return res.status(200).json({
       uid: user.uid,

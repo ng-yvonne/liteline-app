@@ -202,10 +202,39 @@ const getRooms = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @desc get users in the room
+ * @route Get /api/rooms/getRoomUsers
+ * @access private
+ */
+const getRoomUsers = asyncHandler(async (req, res) => {
+  const { roomId } = req.params;
+  const room = await Room.findByPk(roomId);
+
+  if (room) {
+    const owner = room.dataValues.owner;
+    const memberIds = room.dataValues.members;
+    const users = await User.findAll({
+      where: {
+        uid: memberIds,
+      },
+    });
+    const roomMembers = users.map((user) => {
+      const ownerStatus = user.dataValues.uid === owner ? true : false;
+      return { uid: user.dataValues.uid, username: user.dataValues.username, owner: ownerStatus };
+    })
+
+    return res.status(200).json(roomMembers);
+  } else {
+    return res.status(400).send({ message: "Invalid room id given." });
+  }
+});
+
 module.exports = {
   createRoom,
   joinRoom,
   leaveRoom,
   deleteRoom,
   getRooms,
+  getRoomUsers,
 };

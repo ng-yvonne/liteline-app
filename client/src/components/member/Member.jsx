@@ -12,9 +12,7 @@ const Member = (props) => {
         "relative flex items-center rounded-full border-2 border-blue-200 bg-blue-50";
 
     // Availability status
-    var availColor = String(props.isAFK) === "true" ? 'gold' : 'green';
-
-    
+    var availColor = String(props.isOnline) === "true" ? 'green' : 'gray';
 
     return (
         <section className={sectionColor}>
