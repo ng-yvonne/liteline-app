@@ -1,4 +1,5 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -7,36 +8,50 @@ import DialogTitle from "@mui/material/DialogTitle";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import { connect } from "react-redux";
-import { updateUsername } from "../../actions/ActionCreators";
+import SignOut from "../authenticator/Signout";
+import { useUpdateUserMutation } from "../../store/user/userApiSlice";
+import { setCredentials } from "../../store/user/authSlice";
 
-const UserSettings = (props) => {
+const UserSettings = () => {
   const [open, setOpen] = useState(false);
-  const [newUsername, setNewUsername] = useState(props.username); // State to store the new username input
+  const [message, setMessage] = useState({ isError: false, text: "" });
+  const [newUsername, setNewUsername] = useState(""); // State to store the new username input
   const [isEditing, setIsEditing] = useState(false); // State to track whether username is being edited
+  const { userInfo } = useSelector((state) => state.auth);
+  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const dispatch = useDispatch();
 
   const handleOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
-    // Reset username if changes not saved
-    setNewUsername(props.username);
     setIsEditing(false);
-
+    setMessage({ isError: false, text: "" });
     setOpen(false);
   };
 
-  const handleEditClick = () => {
+  const onEdit = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleSaveClick = () => {
-    props.updateUsername(newUsername);
+  const onSave = async () => {
+    try {
+      const res = await updateUser({ username: newUsername }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      setMessage({ isError: false, text: "Username Updated" });
+    } catch (err) {
+      setMessage({ isError: true, text: err?.data?.message || err.error });
+    }
+
     setIsEditing(false);
   };
 
-  const logout = () => {};
+  useEffect(() => {
+    if (userInfo) {
+      setNewUsername(userInfo.username);
+    }
+  }, []);
 
   return (
     <Fragment>
@@ -91,33 +106,30 @@ const UserSettings = (props) => {
                   variant="contained"
                   className="w-full"
                   color="secondary"
-                  onClick={handleSaveClick}
+                  onClick={onSave}
                 >
                   Save Changes
                 </Button>
               ) : (
-                <Button
-                  variant="contained"
-                  className="w-full"
-                  onClick={handleEditClick}
-                >
+                <Button variant="contained" className="w-full" onClick={onEdit}>
                   Edit
                 </Button>
               )}
             </div>
+            <div
+              className={`text-sm text-${
+                message.isError ? "rose-700" : "green-600"
+              }`}
+            >
+              {message.text}
+            </div>
           </div>
 
-          <Button color="error" variant="contained" onClick={logout}>
-            Logout
-          </Button>
+          <SignOut />
         </DialogContent>
       </Dialog>
     </Fragment>
   );
 };
 
-const mapStateToProps = (state) => ({
-  username: state.username,
-});
-
-export default connect(mapStateToProps, { updateUsername })(UserSettings);
+export default UserSettings;
