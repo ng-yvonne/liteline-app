@@ -4,8 +4,7 @@ const {
   joinRoom,
   leaveRoom,
   deleteRoom,
-  getRooms,
-  getRoomUsers,
+  getRoomInfo,
 } = require("../controllers/roomController.js");
 const { protect } = require("../middleware/authMiddleware.js");
 
@@ -15,7 +14,6 @@ router.post("/create", protect, createRoom);
 router.post("/join", protect, joinRoom);
 router.post("/leave", protect, leaveRoom);
 router.post("/delete", protect, deleteRoom);
-router.get("/getRooms", protect, getRooms);
-router.get("/getRoomUsers/:roomId", protect, getRoomUsers);
+router.get("/:id", getRoomInfo);
 
 module.exports = router;

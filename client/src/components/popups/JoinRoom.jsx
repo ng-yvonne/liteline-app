@@ -19,7 +19,7 @@ const JoinRoom = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const [joinRoom, { isLoading }] = useJoinRoomMutation();
+  const [joinRoom, { isJoinRoomLoading }] = useJoinRoomMutation();
   const dispatch = useDispatch();
 
   const handleOpen = () => {
@@ -37,8 +37,8 @@ const JoinRoom = () => {
     const roomCode = formJson.roomId;
 
     try {
-      const res = await joinRoom({ roomCode }).unwrap();
-      dispatch(setRoomInfo({ ...res }));
+      const roomData = await joinRoom({ roomCode }).unwrap();
+      dispatch(setRoomInfo({ ...roomData }));
       socket.emit("joinRoom", roomCode);
       navigate("/chatroom/" + roomCode);
     } catch (err) {

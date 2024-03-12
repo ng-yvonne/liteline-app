@@ -11,8 +11,10 @@ const SocketProvider = ({ children }) => {
     process.env.NODE_ENV === "production" ? undefined : "http://localhost:5000";
 
   useEffect(() => {
-
-    const newSocket = io(URL, { autoConnect: false, withCredentials: true } );
+    const newSocket = io(URL, {
+      autoConnect: false,
+      withCredentials: true,
+    });
     setSocket(newSocket);
 
     return () => newSocket.disconnect();

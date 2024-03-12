@@ -1,7 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../utils/generateToken.js");
+const { QueryTypes } = require("sequelize");
 const db = require("../models");
 const User = db.users;
+const sequelize = db.sequelize;
+
+const findRoomsById = async (uid) => {
+  return await sequelize.query(
+    `SELECT id, name FROM chatrooms WHERE id IN ( SELECT UNNEST(rooms) FROM users WHERE uid = '${uid}' )`,
+    { type: QueryTypes.SELECT }
+  );
+};
 
 /**
  * @desc register a new user
@@ -32,12 +41,14 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    generateToken(res, user.uid);
+    generateToken(res, user.uid, user.username);
+
+    const rooms = await findRoomsById(user.uid);
 
     return res.status(201).json({
       uid: user.uid,
       username: user.username,
-      rooms: user.rooms,
+      rooms: rooms,
     });
   } else {
     return res
@@ -67,10 +78,12 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await user.verifyPassword(password))) {
     generateToken(res, user.uid, username);
 
+    const rooms = await findRoomsById(user.uid);
+
     return res.status(200).json({
       uid: user.uid,
       username: user.username,
-      rooms: user.rooms,
+      rooms: rooms,
     });
   } else {
     return res.status(401).send({ message: "Invalid username or password" });
@@ -87,7 +100,7 @@ const logoutUser = (req, res) => {
     httpOnly: true,
     expires: new Date(0),
   });
-  res.status(200).json({ message: "Logged out successfully" });
+  return res.status(200).json({ message: "Logged out successfully" });
 };
 
 /**
@@ -99,13 +112,15 @@ const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findByPk(req.user.uid);
 
   if (user) {
-    res.status(200).json({
+    const rooms = await findRoomsById(user.uid);
+
+    return res.status(200).json({
       uid: user.uid,
       username: user.username,
-      rooms: user.rooms,
+      rooms: rooms,
     });
   } else {
-    res.status(404).send({ message: "User not found" });
+    return res.status(404).send({ message: "User not found" });
   }
 });
 
@@ -140,10 +155,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       }
     );
 
+    const rooms = await findRoomsById(user.uid);
+
     return res.status(200).json({
       uid: user.uid,
       username: user.username,
-      rooms: user.rooms,
+      rooms: rooms,
     });
   } else {
     return res.status(404).send({ message: "User not found" });
@@ -156,4 +173,5 @@ module.exports = {
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  findRoomsById,
 };

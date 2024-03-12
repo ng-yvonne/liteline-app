@@ -1,5 +1,5 @@
-import { Fragment, useState } from "react";
-import { useSelector } from "react-redux";
+import { Fragment, useContext } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -9,25 +9,32 @@ import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import { useLeaveRoomMutation } from "../../store/room/roomApiSlice";
+import { setRoomInfo } from "../../store/room/roomSlice";
+import { SocketContext } from "../../SocketProvider";
 
-const LeaveRoom = () => {
-  const [open, setOpen] = useState(false);
+const LeaveRoom = ({ setParentClose, open, setOpen }) => {
+  const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [leaveRoom, { isLoading }] = useLeaveRoomMutation();
   const { roomInfo } = useSelector((state) => state.room);
+  const dispatch = useDispatch();
 
   const handleOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
+    setParentClose();
     setOpen(false);
   };
 
   const onLeaveRoom = async () => {
     try {
       await leaveRoom({ roomCode: roomInfo.roomCode }).unwrap();
+      socket.emit("leaveRoom", roomInfo.roomCode);
+      dispatch(setRoomInfo(null));
       navigate("/chatroom");
+      handleClose();
     } catch (err) {
       console.log(err?.data?.message || err.error);
     }

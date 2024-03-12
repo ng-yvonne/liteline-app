@@ -1,31 +1,32 @@
 const express = require("express");
-const pg = require("pg");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const { Server } = require("socket.io");
 const { createServer } = require("node:http");
+
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+const { findMembersById } = require("./controllers/roomController.js");
+const { findRoomsById } = require("./controllers/userController.js");
 const db = require("./models");
 const User = db.users;
-const Room = db.chatrooms;
 
 dotenv.config();
-const config = {
-  host: "chatroom-db.postgres.database.azure.com",
-  user: process.env.PSQL_USERNAME,
-  password: process.env.PSQL_PASSWORD,
-  database: "chatroom_prod",
-  port: 5432,
-  ssl: true,
-};
+
 const jwtSecret = process.env.JWT_SECRET;
 const PORT = process.env.PORT || 5000;
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000", // TODO: CORS_ORIGIN should be the production domain name
+    credentials: true,
+  },
+});
 
 app.use(
   cors({
@@ -40,39 +41,10 @@ app.use(express.urlencoded({ extended: true }));
 // routes/endpoints
 app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/messages", messageRoutes);
 
-const client = new pg.Client(config);
-
-client.connect((err) => {
-  if (err) throw err;
-  else {
-    console.log("Connected to Azure DB.");
-  }
-});
-
-app.get("/test", (req, res) => {
-  res.json("test ok");
-});
-
-app.get("/api/messages/:roomid", async (req, res) => {
-  const { roomid } = req.params;
-
-  // TODO: get user data from cookie > check if user is in room >
-  // query database
-  const query = `SELECT * FROM messages WHERE room = $1`;
-  const values = [roomid];
-
-  client
-    .query(query, values)
-    .then((response) => {
-      const messages = response.rows;
-
-      res.json(messages);
-    })
-    .catch(
-      (err) => console.log(err)
-      // TODO: Failure recovery
-    );
+app.get("/", (req, res) => {
+  res.json("hello backend");
 });
 
 io.on("connection", (socket) => {
@@ -98,15 +70,14 @@ io.on("connection", (socket) => {
 
   // Add users to all their (socket) rooms -> Broadcast to room members the updated online list
   socket.on("online", async () => {
-    const query = `SELECT rooms FROM users WHERE uid = $1`;
-    const values = [socket.userId];
-    client.query(query, values).then((response) => {
-      console.log(`User: ${socket.username} rooms:`, response.rows[0].rooms);
-      response.rows[0].rooms.forEach((room) => {
+    const user = await User.findByPk(socket.userId);
+    if (user) {
+      console.log(`User: ${socket.username} rooms:`, user.rooms);
+      user.rooms.forEach((room) => {
         socket.join(room);
       });
 
-      // Broadcast online user list to the each room user is in
+      // Broadcast online user list to each room user is in (exclude default socket room)
       const rooms = Array.from(socket.rooms).splice(1);
       rooms.forEach((room) => {
         const sockets = io.sockets.adapter.rooms.get(room);
@@ -114,9 +85,10 @@ io.on("connection", (socket) => {
           const sockRef = io.sockets.sockets.get(sockId);
           return { uid: sockRef.userId, username: sockRef.username };
         });
+
         io.to(room).emit("online", { roomId: room, onlineList: onlineMembers });
       });
-    });
+    }
   });
 
   // Broadcast online user list without user to the each room user was in
@@ -141,60 +113,68 @@ io.on("connection", (socket) => {
 
   // Event: User joins room >> Send updated online and room member list to room clients
   socket.on("joinRoom", async (data) => {
-    console.log("User joined room");
+    console.log("User joined room:", data);
     const roomId = data;
     const onlineMembers = [];
     socket.join(roomId);
 
     const sockets = io.sockets.adapter.rooms.get(roomId);
     Array.from(sockets).forEach((sockId) => {
+      console.log(sockId);
       const sockRef = io.sockets.sockets.get(sockId);
       onlineMembers.push({ uid: sockRef.userId, username: sockRef.username });
     });
-    const room = await Room.findByPk(roomId);
-    console.log(room);
 
-    if (room) {
-      const owner = room.dataValues.owner;
-      const memberIds = room.dataValues.members;
-      const users = await User.findAll({
-        where: {
-          uid: memberIds,
-        },
-      });
-      const roomMembers = users.map((user) => {
-        const ownerStatus = user.dataValues.uid === owner ? true : false;
-        return {
-          uid: user.dataValues.uid,
-          username: user.dataValues.username,
-          owner: ownerStatus,
-        };
-      });
+    const roomMembers = await findMembersById(roomId);
 
-      io.to(roomId).emit("joinRoom", {
-        roomId: roomId,
-        roomMembers: roomMembers,
-        connected: onlineMembers,
-      });
-    }
+    io.to(roomId).emit("joinRoom", {
+      roomId: roomId,
+      roomMembers: roomMembers,
+      connected: onlineMembers,
+    });
   });
 
   // Receive message > Store message in db > broadcast received message to roomies
   socket.on("message", (data) => {
-    const { sender, content, timestamp, room } = data;
-    const senderId = socket.userId;
-    const query = `INSERT INTO messages (timestamp, room, sender, message) VALUES ($1, $2, $3, $4)`;
-    const values = [timestamp, room, senderId, content];
+    socket.to(data.room).emit("message", data);
+  });
 
-    client
-      .query(query, values)
-      .then(() => {
-        socket.to(room).emit("message", { sender, content, timestamp, room });
-      })
-      .catch(
-        (err) => console.log(err)
-        // TODO: Failure recovery
-      );
+  socket.on("leaveRoom", async (data) => {
+    console.log("User left room:", data);
+    const roomId = data;
+    const onlineMembers = [];
+    socket.leave(roomId);
+
+    const sockets = io.sockets.adapter.rooms.get(roomId);
+    if (sockets) {
+      Array.from(sockets).forEach((sockId) => {
+        console.log(sockId);
+        const sockRef = io.sockets.sockets.get(sockId);
+        onlineMembers.push({ uid: sockRef.userId, username: sockRef.username });
+      });
+    }
+
+    const roomMembers = await findMembersById(roomId);
+
+    io.to(roomId).emit("leftRoom", {
+      roomId: roomId,
+      roomMembers: roomMembers,
+      connected: onlineMembers,
+    });
+  });
+
+  socket.on("deleteRoom", async (data) => {
+    console.log("Owner deleted room:", data);
+    const roomId = data;
+
+    socket.leave(roomId);
+
+    const userRooms = await findRoomsById(socket.userId);
+
+    io.to(roomId).emit("deletedRoom", {
+      roomId: roomId,
+      userRooms: userRooms,
+    });
   });
 
   socket.on("disconnect", () => {

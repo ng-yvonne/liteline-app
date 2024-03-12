@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { useLogoutMutation } from "../../store/user/userApiSlice";
-import { logout } from "../../store/user/authSlice";
+import { logout } from "../../store/user/userSlice";
 import { apiSlice } from "../../store/apiSlice";
 
 const SignOut = () => {
@@ -16,7 +16,7 @@ const SignOut = () => {
       await logoutApi().unwrap();
       dispatch(logout());
       // Clear the redux cache on logout to make way for a new user session
-      dispatch(apiSlice.util.resetApiState());
+      // dispatch(apiSlice.util.resetApiState());
       navigate("/");
     } catch (err) {
       console.log(err);

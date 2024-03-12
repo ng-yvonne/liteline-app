@@ -1,5 +1,5 @@
-import { Fragment, useState } from "react";
-import { useSelector } from "react-redux";
+import { Fragment, useContext } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -9,12 +9,15 @@ import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import { useDeleteRoomMutation } from "../../store/room/roomApiSlice";
+import { setRoomInfo } from "../../store/room/roomSlice";
+import { SocketContext } from "../../SocketProvider";
 
-const DeleteRoom = () => {
-  const [open, setOpen] = useState(false);
+const DeleteRoom = ({ setParentClose, open, setOpen }) => {
+  const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [deleteRoom, { isLoading }] = useDeleteRoomMutation();
   const { roomInfo } = useSelector((state) => state.room);
+  const dispatch = useDispatch();
 
   const handleOpen = () => {
     setOpen(true);
@@ -22,11 +25,14 @@ const DeleteRoom = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setParentClose();
   };
 
   const onDeleteRoom = async () => {
     try {
       await deleteRoom({ roomCode: roomInfo.roomCode }).unwrap();
+      socket.emit("deleteRoom", roomInfo.roomCode);
+      dispatch(setRoomInfo(null));
       navigate("/chatroom");
     } catch (err) {
       console.log(err?.data?.message || err.error);

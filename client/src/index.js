@@ -2,13 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import "./index.css";
-import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "./theme";
 import store from "./store/store";
 import { SocketProvider } from "./SocketProvider";
+import App from "./App";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./theme";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

@@ -1,76 +1,77 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import { useSelector } from "react-redux";
 import "./Chatbox.css"; // import CSS for styling
 import { Button } from "@mui/material";
 import Message from "./Message";
-import { connect, useSelector } from "react-redux";
-import axios from "axios";
 import { SocketContext } from "../../SocketProvider";
+import {
+  useAddMessageMutation,
+  useGetMessagesByRoomQuery,
+} from "../../store/message/messageApiSlice";
 
 // Chatbox component to display the chat interface
-const Chatbox = (props) => {
-  const { userInfo } = useSelector((state) => state.auth);
-  const username = userInfo.username
+const Chatbox = () => {
+  const { userInfo } = useSelector((state) => state.user);
+  const { roomInfo } = useSelector((state) => state.room);
   const socket = useContext(SocketContext);
-  const { roomid } = props;
+  const [addMessage, { isLoading }] = useAddMessageMutation();
+  const { data, isGetMessagesLoading } = useGetMessagesByRoomQuery(
+    roomInfo.roomCode
+  );
+
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef(null);
-  const roomRef = useRef(roomid);
 
+  // Load room's message log from db
   useEffect(() => {
-    roomRef.current = roomid;
-  }, [roomid]);
+    if (!isGetMessagesLoading && data) {
+      setMessages(data);
+    }
+  }, [isGetMessagesLoading, data]);
 
   // socket for receiving and sending messages
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("message", (data) => {
+    const handleMessage = (data) => {
       if (data) {
         setMessages((prev) => [
           ...prev,
           {
             sender: data.sender,
-            content: data.content,
+            sendername: data.sendername,
+            message: data.message,
             timestamp: data.timestamp,
           },
         ]);
       }
-    });
+    };
+    socket.on("message", handleMessage);
 
     return () => {
-      socket.disconnect();
+      socket.off("message", handleMessage);
     };
   }, [socket]);
 
-  // Load room's message log from db
-  useEffect(() => {
-    if (roomid) {
-      axios.get("/messages/" + roomid).then((res) => {
-        const messagesArr = res.data;
-        const messageLog = [];
-
-        for (const { message, sender, timestamp } of messagesArr) {
-          messageLog.push({ sender, content: message, timestamp });
-        }
-        
-        setMessages(messageLog);
-      });
-    }
-  }, [roomid]);
-
   // Function to handle sending messages
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (inputValue.trim() !== "") {
       const newMessage = {
         sender: userInfo.uid,
-        content: inputValue,
+        sendername: userInfo.username,
+        message: inputValue,
         timestamp: new Date().toISOString(), // Add timestamp when message is sent
       };
 
-      socket.emit("message", { ...newMessage, room: roomid });
-      setMessages([...messages, newMessage]);
-      setInputValue("");
+      try {
+        socket.emit("message", { ...newMessage, room: roomInfo.roomCode });
+        setMessages([...messages, newMessage]);
+        setInputValue("");
+        await addMessage({ ...newMessage, room: roomInfo.roomCode }).unwrap();
+      } catch (err) {
+        console.log(err?.data?.message || err.error);
+      }
     }
   };
 
@@ -94,7 +95,7 @@ const Chatbox = (props) => {
         // Command not recognized
         setMessages([
           ...messages,
-          { username: "Bot", content: `Command "${command}" not recognized.` },
+          { username: "Bot", message: `Command "${command}" not recognized.` },
         ]);
         break;
     }
@@ -132,8 +133,4 @@ const Chatbox = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
-  username: state.username,
-});
-
-export default connect(mapStateToProps)(Chatbox);
+export default Chatbox;

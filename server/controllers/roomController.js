@@ -1,7 +1,16 @@
 const asyncHandler = require("express-async-handler");
+const { QueryTypes } = require("sequelize");
 const db = require("../models");
 const User = db.users;
 const Room = db.chatrooms;
+const sequelize = db.sequelize;
+
+const findMembersById = async (id) => {
+  return await sequelize.query(
+    `SELECT uid, username FROM users WHERE uid IN ( SELECT UNNEST(members) FROM chatrooms WHERE id = '${id}' )`,
+    { type: QueryTypes.SELECT }
+  );
+};
 
 /**
  * @desc create a new chatroom
@@ -34,11 +43,13 @@ const createRoom = asyncHandler(async (req, res) => {
       }
     );
 
+    const roomMembers = await findMembersById(room.id);
+
     return res.status(201).json({
       roomCode: room.id,
       roomName: room.name,
       owner: room.owner,
-      members: room.members,
+      members: roomMembers,
     });
   } else {
     return res
@@ -83,11 +94,13 @@ const joinRoom = asyncHandler(async (req, res) => {
       }
     );
 
+    const roomMembers = await findMembersById(room.id);
+
     return res.status(200).json({
       roomCode: room.id,
       roomName: room.name,
       owner: room.owner,
-      members: room.members,
+      members: roomMembers,
     });
   } else {
     return res
@@ -154,18 +167,22 @@ const deleteRoom = asyncHandler(async (req, res) => {
   }
 
   const room = await Room.findByPk(roomCode);
-  const rooms = user.rooms.filter((id) => id !== roomCode);
 
   if (user && room && user.uid === room.owner) {
+    room.members.map(async (member) => {
+      const user = await User.findByPk(member);
+      const rooms = user.rooms.filter((id) => id !== roomCode);
+      await user.update(
+        { rooms },
+        {
+          where: {
+            uid: member,
+          },
+        }
+      );
+    });
+
     await Room.destroy({ where: { id: roomCode } });
-    await user.update(
-      { rooms },
-      {
-        where: {
-          uid: user.uid,
-        },
-      }
-    );
 
     return res.status(200).json("Successfully delete room");
   } else {
@@ -177,56 +194,29 @@ const deleteRoom = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc get all rooms belonging to the user
- * @route Get /api/rooms/getRooms
- * @access private
+ * @desc get detail of a chatroom
+ * @route GET /api/rooms/:id
+ * @access public
  */
-
-const getRooms = asyncHandler(async (req, res) => {
-  const user = await User.findByPk(req.user.uid);
-
-  if (user) {
-    const rooms = user.rooms;
-    const roomnames = await Room.findAll({
-      where: {
-        id: rooms,
-      },
-    });
-    const userRoomsInfo = roomnames.map((room) => {
-      return { id: room.id, name: room.name };
-    });
-
-    return res.status(200).json(userRoomsInfo);
-  } else {
-    return res.status(400).send({ message: "Invalid user." });
+const getRoomInfo = asyncHandler(async (req, res) => {
+  if (!req.params.id) {
+    return res
+      .status(400)
+      .send({ message: "Room ID could not be found in request parameters" });
   }
-});
 
-/**
- * @desc get users in the room
- * @route Get /api/rooms/getRoomUsers
- * @access private
- */
-const getRoomUsers = asyncHandler(async (req, res) => {
-  const { roomId } = req.params;
-  const room = await Room.findByPk(roomId);
+  const room = await Room.findByPk(req.params.id);
 
   if (room) {
-    const owner = room.dataValues.owner;
-    const memberIds = room.dataValues.members;
-    const users = await User.findAll({
-      where: {
-        uid: memberIds,
-      },
+    const roomMembers = await findMembersById(room.id);
+    return res.status(200).json({
+      roomCode: room.id,
+      roomName: room.name,
+      owner: room.owner,
+      members: roomMembers,
     });
-    const roomMembers = users.map((user) => {
-      const ownerStatus = user.dataValues.uid === owner ? true : false;
-      return { uid: user.dataValues.uid, username: user.dataValues.username, owner: ownerStatus };
-    })
-
-    return res.status(200).json(roomMembers);
   } else {
-    return res.status(400).send({ message: "Invalid room id given." });
+    return res.status(400).send({ message: "Room not found" });
   }
 });
 
@@ -235,6 +225,6 @@ module.exports = {
   joinRoom,
   leaveRoom,
   deleteRoom,
-  getRooms,
-  getRoomUsers,
+  getRoomInfo,
+  findMembersById,
 };

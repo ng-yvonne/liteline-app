@@ -1,13 +1,22 @@
+import { useContext, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import RoomSettings from "../popups/RoomSettings";
 import ShareRoom from "../popups/ShareRoom";
 import Member from "../member/Member";
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../../SocketProvider";
+import { useGetRoomQuery } from "../../store/room/roomApiSlice";
+import { setRoomInfo } from "../../store/room/roomSlice";
+import { setUserInfo } from "../../store/user/userSlice";
 
-const RightSidebar = (props) => {
-  const roomId = props.roomid;
+const RightSidebar = () => {
+  const [skip, setSkip] = useState(true);
   const socket = useContext(SocketContext);
+  const { roomInfo } = useSelector((state) => state.room);
+  const { userInfo } = useSelector((state) => state.user);
+  const { data, isGetRoomLoading } = useGetRoomQuery(roomInfo.roomCode, {
+    skip,
+  });
+  const dispatch = useDispatch();
 
   const [roomMembers, setRoomMembers] = useState([]);
   const [connected, setConnected] = useState([]);
@@ -15,56 +24,79 @@ const RightSidebar = (props) => {
   const [offlineMembers, setOfflineMembers] = useState([]);
 
   useEffect(() => {
+    if (!isGetRoomLoading && data) {
+      dispatch(setRoomInfo({ ...data }));
+    }
+  }, [data, isGetRoomLoading, dispatch]);
+
+  useEffect(() => {
+    if (!roomInfo) {
+      setSkip(true);
+    }
+    setSkip(false);
+  }, [roomInfo]);
+
+  useEffect(() => {
     if (!socket) return;
 
+    socket.connect();
+    socket.emit("online");
     socket.on("online", (data) => {
-      if (data && data.roomId === roomId) {
+      if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.onlineList);
       }
     });
 
     socket.on("joinRoom", (data) => {
-      console.log(data)
-      if (data && data.roomId == roomId) {
+      if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.connected);
         setRoomMembers(data.roomMembers);
+        dispatch(setRoomInfo({ ...roomInfo, members: data.roomMembers }));
       }
-    })
+    });
+
+    socket.on("leftRoom", (data) => {
+      if (data && data.roomId === roomInfo.roomCode) {
+        setConnected(data.connected);
+        setRoomMembers(data.roomMembers);
+        dispatch(setRoomInfo({ ...roomInfo, members: data.roomMembers }));
+      }
+    });
+
+    socket.on("deletedRoom", (data) => {
+      if (data && data.roomId === roomInfo.roomCode) {
+        setConnected(data.connected);
+        setRoomMembers(data.roomMembers);
+        dispatch(setRoomInfo(null));
+        dispatch(setUserInfo({ ...userInfo, rooms: data.userRooms }));
+      }
+    });
 
     return () => {
       socket.disconnect();
     };
-  }, [socket]);
-
-  useEffect(() => {
-    axios.get("/rooms/getRoomUsers/" + roomId).then((res) => {
-      const members = res.data;
-      if (members) {
-        setRoomMembers(members);
-      }
-    });
-  }, [roomId]);
+  }, [socket, roomInfo, userInfo, dispatch]);
 
   useEffect(() => {
     const online = roomMembers.filter((member) => {
-      if (connected.some(on => on.uid === member.uid)) {
+      if (connected.some((on) => on.uid === member.uid)) {
         return true;
       } else {
         return false;
       }
     });
-    
+
     const offline = roomMembers.filter((member) => {
-      if (online.some(on => on.uid === member.uid)) {
+      if (online.some((on) => on.uid === member.uid)) {
         return false;
       } else {
-        return true
+        return true;
       }
     });
-    
+
     setOnlineMembers(online);
     setOfflineMembers(offline);
-  }, [roomMembers, connected]);
+  }, [roomInfo, connected]);
 
   return (
     <div className="flex flex-col justify-between h-full w-1/5 min-w-fit">
@@ -79,7 +111,7 @@ const RightSidebar = (props) => {
             <Member
               key={member.uid}
               name={member.username}
-              isOwner={member.owner}
+              isOwner={roomInfo.owner === member.uid}
               isOnline={true}
             />
           ))}
@@ -87,7 +119,7 @@ const RightSidebar = (props) => {
             <Member
               key={member.uid}
               name={member.username}
-              isOwner={member.owner}
+              isOwner={roomInfo.owner === member.uid}
               isOnline={false}
             />
           ))}
@@ -98,12 +130,12 @@ const RightSidebar = (props) => {
         <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
         {/* Button for Room Settings */}
-        {/* <RoomSettings /> */}
+        <RoomSettings />
 
         <hr className="my-6 border-gray-200 dark:border-gray-400" />
 
         {/* Button for Sharing */}
-        {/* <ShareRoom /> */}
+        <ShareRoom />
       </div>
     </div>
   );

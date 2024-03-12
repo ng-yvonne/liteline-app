@@ -12,21 +12,25 @@ import DeleteRoom from "./DeleteRoom";
 import LeaveRoom from "./LeaveRoom";
 
 const RoomSettings = () => {
-  const [open, setOpen] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
+  const [openLeaveConfirmation, setOpenLeaveConfirmation] = useState(false);
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const { roomInfo } = useSelector((state) => state.room);
-  const { userInfo } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.user);
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleOpenSettings = () => {
+    setOpenSettings(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseSettings = () => {
+    setOpenSettings(false);
   };
 
   useEffect(() => {
-    setIsOwner(roomInfo.owner === userInfo.uid);
+    if (roomInfo && userInfo) {
+      setIsOwner(roomInfo.owner === userInfo.uid);
+    }
   }, [roomInfo, userInfo]);
 
   return (
@@ -36,13 +40,13 @@ const RoomSettings = () => {
         color="inherit"
         startIcon={<RoomPreferencesIcon />}
         className="flex-grow"
-        onClick={handleOpen}
+        onClick={handleOpenSettings}
       >
         Room Settings
       </Button>
       <Dialog
-        open={open}
-        onClose={handleClose}
+        open={openSettings}
+        onClose={handleCloseSettings}
         PaperProps={{
           component: "div",
         }}
@@ -50,7 +54,7 @@ const RoomSettings = () => {
         <DialogTitle>Room Settings</DialogTitle>
         <IconButton
           aria-label="close"
-          onClick={handleClose}
+          onClick={handleCloseSettings}
           sx={{
             position: "absolute",
             right: 8,
@@ -65,9 +69,19 @@ const RoomSettings = () => {
             There is no going back of below actions. Please be certain.
           </DialogContentText>
 
-          <LeaveRoom />
+          <LeaveRoom
+            setParentClose={handleCloseSettings}
+            open={openLeaveConfirmation}
+            setOpen={setOpenLeaveConfirmation}
+          />
 
-          {isOwner && <DeleteRoom />}
+          {isOwner && (
+            <DeleteRoom
+              setParentClose={handleCloseSettings}
+              open={openDeleteConfirmation}
+              setOpen={setOpenDeleteConfirmation}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </Fragment>

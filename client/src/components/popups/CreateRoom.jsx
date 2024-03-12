@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -12,8 +12,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import { useCreateRoomMutation } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
+import { SocketContext } from "../../SocketProvider";
 
 const CreateRoom = () => {
+  const socket = useContext(SocketContext);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ const CreateRoom = () => {
     try {
       const res = await createRoom({ roomName }).unwrap();
       dispatch(setRoomInfo({ ...res }));
+      socket.emit("joinRoom", res.roomCode);
       navigate("/chatroom/" + res.roomCode);
     } catch (err) {
       setMessage(err?.data?.message || err.error);

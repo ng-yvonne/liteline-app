@@ -10,6 +10,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      invalidatesTags: ["User", "Room"],
     }),
     joinRoom: builder.mutation({
       query: (data) => ({
@@ -18,6 +19,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      invalidatesTags: ["User", "Room"],
     }),
     leaveRoom: builder.mutation({
       query: (data) => ({
@@ -26,6 +28,7 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      invalidatesTags: ["User", "Room"],
     }),
     deleteRoom: builder.mutation({
       query: (data) => ({
@@ -34,6 +37,15 @@ export const roomsApiSlice = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
+      invalidatesTags: ["User", "Room"],
+    }),
+    getRoom: builder.query({
+      query: (id) => ({
+        url: `${ROOMS_URL}/${id}`,
+        method: "GET",
+        credentials: "include",
+      }),
+      providesTags: ["Room"],
     }),
   }),
 });
@@ -43,4 +55,5 @@ export const {
   useJoinRoomMutation,
   useLeaveRoomMutation,
   useDeleteRoomMutation,
+  useGetRoomQuery,
 } = roomsApiSlice;
