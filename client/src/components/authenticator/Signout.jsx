@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import { useLogoutMutation } from "../../store/user/userApiSlice";
 import { logout } from "../../store/user/userSlice";
 import { apiSlice } from "../../store/apiSlice";
+import { setRoomInfo } from "../../store/room/roomSlice";
 
 const SignOut = () => {
   const navigate = useNavigate();
@@ -13,8 +14,9 @@ const SignOut = () => {
 
   const onLogout = async () => {
     try {
-      await logoutApi().unwrap();
       dispatch(logout());
+      dispatch(setRoomInfo(null));
+      await logoutApi();
       // Clear the redux cache on logout to make way for a new user session
       // dispatch(apiSlice.util.resetApiState());
       navigate("/");

@@ -51,7 +51,7 @@ const UserSettings = () => {
     if (userInfo) {
       setNewUsername(userInfo.username);
     }
-  }, []);
+  }, [userInfo]);
 
   return (
     <Fragment>
