@@ -9,6 +9,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["User"],
     }),
     login: builder.mutation({
       query: (data) => ({
@@ -16,12 +17,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["User"],
     }),
     logout: builder.mutation({
       query: () => ({
         url: `${USERS_URL}/logout`,
         method: "POST",
       }),
+      invalidatesTags: ["User"],
     }),
     getUser: builder.query({
       query: () => ({

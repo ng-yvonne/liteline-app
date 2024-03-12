@@ -18,7 +18,6 @@ const RightSidebar = () => {
   });
   const dispatch = useDispatch();
 
-  const [roomMembers, setRoomMembers] = useState([]);
   const [connected, setConnected] = useState([]);
   const [onlineMembers, setOnlineMembers] = useState([]);
   const [offlineMembers, setOfflineMembers] = useState([]);
@@ -50,7 +49,6 @@ const RightSidebar = () => {
     socket.on("joinRoom", (data) => {
       if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.connected);
-        setRoomMembers(data.roomMembers);
         dispatch(setRoomInfo({ ...roomInfo, members: data.roomMembers }));
       }
     });
@@ -58,7 +56,6 @@ const RightSidebar = () => {
     socket.on("leftRoom", (data) => {
       if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.connected);
-        setRoomMembers(data.roomMembers);
         dispatch(setRoomInfo({ ...roomInfo, members: data.roomMembers }));
       }
     });
@@ -66,7 +63,6 @@ const RightSidebar = () => {
     socket.on("deletedRoom", (data) => {
       if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.connected);
-        setRoomMembers(data.roomMembers);
         dispatch(setRoomInfo(null));
         dispatch(setUserInfo({ ...userInfo, rooms: data.userRooms }));
       }
@@ -78,7 +74,7 @@ const RightSidebar = () => {
   }, [socket, roomInfo, userInfo, dispatch]);
 
   useEffect(() => {
-    const online = roomMembers.filter((member) => {
+    const online = roomInfo.members.filter((member) => {
       if (connected.some((on) => on.uid === member.uid)) {
         return true;
       } else {
@@ -86,7 +82,7 @@ const RightSidebar = () => {
       }
     });
 
-    const offline = roomMembers.filter((member) => {
+    const offline = roomInfo.members.filter((member) => {
       if (online.some((on) => on.uid === member.uid)) {
         return false;
       } else {
