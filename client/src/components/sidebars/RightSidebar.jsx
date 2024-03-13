@@ -67,7 +67,7 @@ const RightSidebar = () => {
         dispatch(setUserInfo({ ...userInfo, rooms: data.userRooms }));
       }
     });
-  }, [socket, roomInfo, userInfo]);
+  }, [socket]);
 
   useEffect(() => {
     const online = roomInfo.members.filter((member) => {
@@ -88,7 +88,7 @@ const RightSidebar = () => {
 
     setOnlineMembers(online);
     setOfflineMembers(offline);
-  }, [roomInfo, connected]);
+  }, [roomInfo.roomCode, connected]);
 
   return (
     <div className="flex flex-col justify-between h-full w-1/5 min-w-fit">
