@@ -38,8 +38,8 @@ const RightSidebar = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.connect();
     socket.emit("online");
+
     socket.on("online", (data) => {
       if (data && data.roomId === roomInfo.roomCode) {
         setConnected(data.onlineList);
@@ -67,11 +67,7 @@ const RightSidebar = () => {
         dispatch(setUserInfo({ ...userInfo, rooms: data.userRooms }));
       }
     });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket, roomInfo, userInfo, dispatch]);
+  }, [socket, roomInfo, userInfo]);
 
   useEffect(() => {
     const online = roomInfo.members.filter((member) => {
