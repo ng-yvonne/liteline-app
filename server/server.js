@@ -18,7 +18,7 @@ const User = db.users;
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -26,6 +26,7 @@ const io = new Server(server, {
     origin: process.env.CLIENT_URL || "http://localhost:3000", // TODO: CORS_ORIGIN should be the production domain name
     credentials: true,
   },
+  transports: ["websocket", "polling", "flashsocket"],
 });
 
 app.use(
