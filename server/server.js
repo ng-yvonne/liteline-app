@@ -23,17 +23,15 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL, // TODO: CORS_ORIGIN should be the production domain name
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
 });
 
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL,
-  })
-);
+app.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL,
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,11 +43,9 @@ app.use("/api/messages", messageRoutes);
 
 // Add headers before the routes are defined
 app.use(function (req, res, next) {
-
-  // Website you wish to allow to connect
   res.setHeader('Access-Control-Allow-Origin', `${process.env.CLIENT_URL}`);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', true);
   next();
 });
