@@ -18,22 +18,20 @@ const User = db.users;
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000", // TODO: CORS_ORIGIN should be the production domain name
+    origin: process.env.CLIENT_URL,
     credentials: true,
   },
 });
 
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL,
-  })
-);
+app.use(cors({
+  credentials: true,
+  origin: process.env.CLIENT_URL,
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,8 +41,17 @@ app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/messages", messageRoutes);
 
+// Add headers before the routes are defined
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', `${process.env.CLIENT_URL}`);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
+
 app.get("/", (req, res) => {
-  res.json("hello backend");
+  res.send("hello backend");
 });
 
 io.on("connection", (socket) => {
@@ -183,5 +190,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}.`);
+  console.log(`Server is running at ${process.env.SERVER_URL}.`);
 });
