@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// roomInfo: id, name, owner, members
 const initialState = {
   roomInfo: null,
 };
