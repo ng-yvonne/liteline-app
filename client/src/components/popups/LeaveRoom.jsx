@@ -8,12 +8,18 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import Loader from "../loader/Loader";
 import { useLeaveRoomMutation } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
+import {
+  setSuccessAlert,
+  setErrorAlert,
+} from "../../store/notification/notificationSlice";
 import { SocketContext } from "../../SocketProvider";
+import socket from "../../socket";
 
 const LeaveRoom = ({ setParentClose, open, setOpen }) => {
-  const socket = useContext(SocketContext);
+  // const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [leaveRoom, { isLoading }] = useLeaveRoomMutation();
   const { roomInfo } = useSelector((state) => state.room);
@@ -30,15 +36,22 @@ const LeaveRoom = ({ setParentClose, open, setOpen }) => {
 
   const onLeaveRoom = async () => {
     try {
-      await leaveRoom({ roomCode: roomInfo.roomCode }).unwrap();
+      const response = await leaveRoom({
+        roomCode: roomInfo.roomCode,
+      }).unwrap();
       socket.emit("leaveRoom", roomInfo.roomCode);
       dispatch(setRoomInfo(null));
+      dispatch(setSuccessAlert(response));
       navigate("/chatroom");
       handleClose();
     } catch (err) {
-      console.log(err?.data?.message || err.error);
+      dispatch(setErrorAlert(err?.data?.message || err.error));
     }
   };
+
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <Fragment>

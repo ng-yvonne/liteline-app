@@ -8,18 +8,20 @@ const sequelize = new Sequelize({
   host: dbConfig.HOST,
   port: dbConfig.PORT,
   dialect: dbConfig.dialect,
-  dialectOptions: {
-    ssl: {
-      require: dbConfig.SSL,
-    },
-  },
+  // dialectOptions: {
+  //   ssl: {
+  //     require: dbConfig.SSL,
+  //   },
+  // },
   logging: false,
 });
 
 sequelize
   .authenticate()
   .then(() => {
-    console.log(`Database connected`);
+    console.log(
+      `${dbConfig.dialect} database connected >> ${dbConfig.HOST} >> ${dbConfig.DB}`
+    );
   })
   .catch((err) => {
     console.log(err);

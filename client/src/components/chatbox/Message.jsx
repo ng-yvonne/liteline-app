@@ -23,7 +23,7 @@ const Message = ({ message }) => {
   return (
     <div className="message">
       <div className="message-header">
-        <span className="username">{message.sendername} </span>
+        <span className="username">{message.username} </span>
         <span className="timestamp">
           {getMessageTimestamp(message.timestamp)}
         </span>

@@ -10,16 +10,21 @@ import DialogContentText from "@mui/material/DialogContentText";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import Loader from "../loader/Loader";
 import { useCreateRoomMutation } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
+import {
+  setSuccessAlert,
+  setErrorAlert,
+} from "../../store/notification/notificationSlice";
 import { SocketContext } from "../../SocketProvider";
+import socket from "../../socket";
 
 const CreateRoom = () => {
-  const socket = useContext(SocketContext);
+  // const socket = useContext(SocketContext);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
   const [createRoom, { isLoading }] = useCreateRoomMutation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleOpen = () => {
@@ -37,20 +42,23 @@ const CreateRoom = () => {
     const roomName = formJson.roomName;
 
     try {
-      const res = await createRoom({ roomName }).unwrap();
-      dispatch(setRoomInfo({ ...res }));
-      socket.emit("joinRoom", res.roomCode);
-      navigate("/chatroom/" + res.roomCode);
+      const roomData = await createRoom({ roomName }).unwrap();
+      dispatch(setRoomInfo({ ...roomData }));
+      socket.emit("joinRoom", roomData.roomCode);
+      dispatch(
+        setSuccessAlert(`Welcome! You have created ${roomData.roomName}!`)
+      );
+      navigate("/chatroom/" + roomData.roomCode);
     } catch (err) {
-      setMessage(err?.data?.message || err.error);
+      dispatch(setErrorAlert(err?.data?.message || err.error));
     }
 
     handleClose();
   };
 
-  useEffect(() => {
-    setMessage("Give your new room a personality with a name!");
-  }, [open]);
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <Fragment>
@@ -87,7 +95,9 @@ const CreateRoom = () => {
         </IconButton>
 
         <DialogContent dividers className="flex flex-col gap-4">
-          <DialogContentText>{message}</DialogContentText>
+          <DialogContentText>
+            Give your new room a personality with a name!
+          </DialogContentText>
           <TextField
             autoFocus
             required

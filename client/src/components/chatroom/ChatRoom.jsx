@@ -1,42 +1,19 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import Divider from "@mui/material/Divider";
 import Chatbox from "../chatbox/Chatbox";
 import RightSidebar from "../sidebars/RightSidebar";
 import Loader from "../loader/Loader";
-import {
-  useGetRoomQuery,
-  useLazyGetRoomQuery,
-} from "../../store/room/roomApiSlice";
+import { useGetRoomQuery } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
-import socket from "../../socket";
 
 const ChatRoom = () => {
-  const { roomInfo } = useSelector((state) => state.room);
   const [skip, setSkip] = useState(true);
+  const { roomInfo } = useSelector((state) => state.room);
   const { data, isGetRoomLoading } = useGetRoomQuery(roomInfo.roomCode, {
     skip,
   });
-  // const [getRoom, queryResult] = useLazyGetRoomQuery();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (roomInfo?.roomCode) {
-  //     getRoom(roomInfo.roomCode).then((result) => {
-  //       if (
-  //         result &&
-  //         result.data &&
-  //         result.data.roomCode === roomInfo.roomCode
-  //       ) {
-  //         console.log("get room request", roomInfo.roomCode);
-  //         dispatch(setRoomInfo({ ...result.data }));
-  //         socket.emit("joinRoom", roomInfo.roomCode);
-  //       }
-  //     });
-  //   }
-  // }, [roomInfo?.roomCode]);
 
   useEffect(() => {
     if (!isGetRoomLoading && data && data.roomCode === roomInfo.roomCode) {
@@ -45,13 +22,17 @@ const ChatRoom = () => {
     }
   }, [data, isGetRoomLoading, roomInfo.roomCode]);
 
+  useEffect(() => {
+    if (!roomInfo) {
+      setSkip(true);
+    } else {
+      setSkip(false);
+    }
+  }, [roomInfo]);
+
   if (isGetRoomLoading) {
     return <Loader isLoading={isGetRoomLoading} />;
   }
-
-  // if (queryResult && queryResult.isLoading) {
-  //   return <Loader isLoading={queryResult.isLoading} />;
-  // }
 
   return (
     <div className="flex flex-row w-full justify-between">

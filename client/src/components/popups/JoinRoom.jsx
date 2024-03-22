@@ -10,16 +10,21 @@ import DialogContentText from "@mui/material/DialogContentText";
 import GroupAddRoundedIcon from "@mui/icons-material/GroupAddRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import Loader from "../loader/Loader";
 import { useJoinRoomMutation } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
+import {
+  setSuccessAlert,
+  setErrorAlert,
+} from "../../store/notification/notificationSlice";
 import { SocketContext } from "../../SocketProvider";
+import socket from "../../socket";
 
 const JoinRoom = () => {
-  const socket = useContext(SocketContext);
+  // const socket = useContext(SocketContext);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [joinRoom, { isLoading }] = useJoinRoomMutation();
   const navigate = useNavigate();
-  const [joinRoom, { isJoinRoomLoading }] = useJoinRoomMutation();
   const dispatch = useDispatch();
 
   const handleOpen = () => {
@@ -32,6 +37,7 @@ const JoinRoom = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // check field is not empty
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
     const roomCode = formJson.roomId;
@@ -40,16 +46,19 @@ const JoinRoom = () => {
       const roomData = await joinRoom({ roomCode }).unwrap();
       dispatch(setRoomInfo({ ...roomData }));
       socket.emit("joinRoom", roomCode);
+      dispatch(
+        setSuccessAlert(`Welcome! You have joined ${roomData.roomName}!`)
+      );
       navigate("/chatroom/" + roomCode);
     } catch (err) {
-      setMessage(err?.data?.message || err.error);
+      dispatch(setErrorAlert(err?.data?.message || err.error));
     }
     handleClose();
   };
 
-  useEffect(() => {
-    setMessage("Enter the room code to join the room!");
-  }, [open]);
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <Fragment>
@@ -85,7 +94,9 @@ const JoinRoom = () => {
         </IconButton>
 
         <DialogContent dividers className="flex flex-col gap-4">
-          <DialogContentText>{message}</DialogContentText>
+          <DialogContentText>
+            Enter the room code to join the room!
+          </DialogContentText>
           <TextField
             autoFocus
             required

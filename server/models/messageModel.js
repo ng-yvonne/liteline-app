@@ -23,10 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       message: {
         type: DataTypes.STRING,
       },
-      sendername: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
+      // sendername: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false,
+      // },
     },
     { timestamps: false }
   );

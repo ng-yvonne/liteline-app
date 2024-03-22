@@ -10,6 +10,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import SignOut from "../authenticator/Signout";
 import Loader from "../loader/Loader";
+import socket from "../../socket";
 import { useUpdateUserMutation } from "../../store/user/userApiSlice";
 import { setUserInfo } from "../../store/user/userSlice";
 import {
@@ -45,21 +46,22 @@ const UserSettings = () => {
     } else {
       try {
         const res = await updateUser({ username: newUsername }).unwrap();
+        socket.emit("updateUsername", newUsername);
         dispatch(setUserInfo({ ...res }));
         dispatch(setSuccessAlert("Username updated."));
+        handleClose();
       } catch (err) {
+        setIsEditing(false);
         dispatch(setErrorAlert(err?.data?.message || err.error));
       }
     }
-
-    setIsEditing(false);
   };
 
   useEffect(() => {
     if (userInfo) {
       setNewUsername(userInfo.username);
     }
-  }, [userInfo]);
+  }, [open, userInfo]);
 
   if (isLoading) {
     return <Loader isLoading={isLoading} />;

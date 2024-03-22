@@ -10,8 +10,8 @@ const LeftSidebar = () => {
   const { userInfo } = useSelector((state) => state.user);
 
   return (
-    <div className="flex flex-row w-full h-screen">
-      <div className="flex flex-col justify-between w-1/5 min-w-fit h-full">
+    <div className="flex flex-row w-full h-screen overflow-y-hidden">
+      <div className="flex flex-col justify-between w-1/5 min-w-fit">
         <h1 className="text-lg font-bold mt-4 text-center">Available Rooms</h1>
         <div className="p-4 text-gray-800 h-[70%] overflow-y-hidden">
           {/* Scrollable Container for Room Components */}
@@ -21,7 +21,7 @@ const LeftSidebar = () => {
           >
             {userInfo &&
               userInfo.rooms.map((room) => (
-                <Room key={room.id} name={room.name} roomCode={room.id} />
+                <Room key={room.id} name={room.name} roomId={room.id} />
               ))}
           </div>
         </div>
