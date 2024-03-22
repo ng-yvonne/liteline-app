@@ -8,7 +8,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: `${MESSAGES_URL}/${data.room}`,
         method: "POST",
         body: data,
-        // credentials: "include",
       }),
       invalidatesTags: ["Message"],
     }),
@@ -16,7 +15,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `${MESSAGES_URL}/${id}`,
         method: "GET",
-        // credentials: "include",
       }),
       providesTags: ["Message"],
     }),

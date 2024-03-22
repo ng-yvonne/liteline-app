@@ -8,7 +8,7 @@ const App = () => {
   return (
     <div className="relative min-h-screen">
       <Routes>
-        <Route path="/" element={<LandingPage />}></Route>
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/chatroom/*"
           element={
@@ -16,8 +16,9 @@ const App = () => {
               <ChatPage />
             </ProtectedRoute>
           }
-        ></Route>
+        />
       </Routes>
+
       <Toast />
     </div>
   );
