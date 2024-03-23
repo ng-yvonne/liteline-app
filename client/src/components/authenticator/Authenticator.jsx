@@ -14,7 +14,7 @@ const Authenticator = () => {
   };
 
   return (
-    <div className="relative border-2 w-[75%] sm:max-w-md rounded-xl sm:p-4">
+    <div className="relative border-2 w-[75%] sm:max-w-md rounded-xl sm:p-4 bg-white">
       <Tabs
         value={value}
         onChange={handleChange}
