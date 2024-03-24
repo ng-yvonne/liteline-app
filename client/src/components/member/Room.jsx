@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useJoinRoomMutation } from "../../store/room/roomApiSlice";
@@ -7,11 +6,9 @@ import {
   setSuccessAlert,
   setErrorAlert,
 } from "../../store/notification/notificationSlice";
-import { SocketContext } from "../../SocketProvider";
 import socket from "../../socket";
 
 const Room = ({ name, roomId }) => {
-  // const socket = useContext(SocketContext);
   let { roomCode } = useParams();
   const { roomInfo } = useSelector((state) => state.room);
   const [joinRoom, { isLoading }] = useJoinRoomMutation();
@@ -19,7 +16,6 @@ const Room = ({ name, roomId }) => {
   const dispatch = useDispatch();
 
   const onJoinRoom = async () => {
-    console.log(roomCode);
     if (roomInfo?.roomCode === roomId && roomCode) return;
     try {
       const roomData = await joinRoom({ roomCode: roomId }).unwrap();

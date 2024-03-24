@@ -44,7 +44,14 @@ const Chatbox = () => {
         socket.emit("message", { ...newMessage, room: roomInfo.roomCode });
         dispatch(setMessage([...messages, newMessage]));
         setInputValue("");
-        await addMessage({ ...newMessage, room: roomInfo.roomCode }).unwrap();
+        const response = await addMessage({
+          ...newMessage,
+          room: roomInfo.roomCode,
+        }).unwrap();
+        // // check if response 200
+        // if (response) {
+        //   socket.emit("message", { ...newMessage, room: roomInfo.roomCode });
+        // }
       } catch (err) {
         console.log(err?.data?.message || err.error);
       }

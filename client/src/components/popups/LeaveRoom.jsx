@@ -1,4 +1,4 @@
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -15,11 +15,9 @@ import {
   setSuccessAlert,
   setErrorAlert,
 } from "../../store/notification/notificationSlice";
-import { SocketContext } from "../../SocketProvider";
 import socket from "../../socket";
 
 const LeaveRoom = ({ setParentClose, open, setOpen }) => {
-  // const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [leaveRoom, { isLoading }] = useLeaveRoomMutation();
   const { roomInfo } = useSelector((state) => state.room);

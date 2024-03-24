@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// roomInfo: id, name, owner, members
+// roomInfo: roomCode, roomName, owner, members
 const initialState = {
   roomInfo: localStorage.getItem("roomInfo")
     ? JSON.parse(localStorage.getItem("roomInfo"))

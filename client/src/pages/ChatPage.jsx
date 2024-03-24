@@ -9,11 +9,7 @@ import { useGetUserQuery } from "../store/user/userApiSlice";
 import { setUserInfo } from "../store/user/userSlice";
 import { setRoomInfo, setOnlineMembers } from "../store/room/roomSlice";
 import { setMessage } from "../store/message/messageSlice";
-import {
-  setSuccessAlert,
-  setInfoAlert,
-  setErrorAlert,
-} from "../store/notification/notificationSlice";
+import { setInfoAlert } from "../store/notification/notificationSlice";
 import socket from "../socket";
 
 const ChatPage = () => {
@@ -73,8 +69,9 @@ const ChatPage = () => {
 
   useEffect(() => {
     const handleOnline = (data) => {
+      console.log("receive online notice1");
       if (data && data.roomId === roomInfo?.roomCode) {
-        console.log("receive online notice");
+        console.log("receive online notice2");
         if (
           onlineMembers.length !== data.onlineMembers ||
           isDifferentUserArray(onlineMembers, data.onlineMembers)
@@ -92,8 +89,9 @@ const ChatPage = () => {
 
   useEffect(() => {
     const handleJoinRoom = (data) => {
+      console.log("join room 1");
       if (data && data.roomId === roomInfo?.roomCode) {
-        console.log("join room");
+        console.log("join room 2");
         dispatch(setOnlineMembers(data.onlineMembers));
         dispatch(setRoomInfo({ ...roomInfo, members: data.roomMembers }));
         if (userInfo.uid !== data.requester) {
@@ -175,7 +173,7 @@ const ChatPage = () => {
 
   return (
     <Routes>
-      <Route path="/*" element={<LeftSidebar />}>
+      <Route path="/" element={<LeftSidebar />}>
         <Route index element={<WelcomeChat />} />
         <Route path=":roomCode" element={roomInfo && <ChatRoom />} />
       </Route>

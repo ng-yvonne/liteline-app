@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useContext } from "react";
+import { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -17,11 +17,9 @@ import {
   setSuccessAlert,
   setErrorAlert,
 } from "../../store/notification/notificationSlice";
-import { SocketContext } from "../../SocketProvider";
 import socket from "../../socket";
 
 const JoinRoom = () => {
-  // const socket = useContext(SocketContext);
   const [open, setOpen] = useState(false);
   const [joinRoom, { isLoading }] = useJoinRoomMutation();
   const navigate = useNavigate();

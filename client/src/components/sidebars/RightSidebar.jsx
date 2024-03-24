@@ -1,32 +1,18 @@
-import { useContext, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import RoomSettings from "../popups/RoomSettings";
 import ShareRoom from "../popups/ShareRoom";
 import Member from "../member/Member";
-import { setUserInfo } from "../../store/user/userSlice";
-import { setRoomInfo } from "../../store/room/roomSlice";
-import { setInfoAlert } from "../../store/notification/notificationSlice";
-import {
-  isDifferentUserArray,
-  sortUsersByUsernameAsc,
-} from "../../utils/utility";
-import { SocketContext } from "../../SocketProvider";
-import socket from "../../socket";
+import { sortUsersByUsernameAsc } from "../../utils/utility";
 
 const RightSidebar = () => {
-  // const socket = useContext(SocketContext);
-  const { userInfo } = useSelector((state) => state.user);
   const { roomInfo, onlineMembers } = useSelector((state) => state.room);
-
   const [online, setOnline] = useState([]);
   const [offline, setOffline] = useState([]);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const online = roomInfo.members.filter((member) => {
-      if (onlineMembers.some((on) => on.uid === member.uid)) {
+      if (onlineMembers?.some((on) => on.uid === member.uid)) {
         return true;
       } else {
         return false;
