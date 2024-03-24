@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// userInfo: uid, username, rooms
 const initialState = {
   userInfo: localStorage.getItem("userInfo")
     ? JSON.parse(localStorage.getItem("userInfo"))
@@ -16,7 +17,7 @@ export const authSlice = createSlice({
     },
     logout: (state, action) => {
       state.userInfo = null;
-      localStorage.removeItem("userInfo");
+      localStorage.clear();
     },
   },
 });

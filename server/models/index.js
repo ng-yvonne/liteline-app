@@ -11,6 +11,7 @@ const sequelize = new Sequelize({
   dialectOptions: {
     ssl: {
       require: dbConfig.SSL,
+      rejectUnauthorized: false,
     },
   },
   logging: false,
@@ -19,7 +20,9 @@ const sequelize = new Sequelize({
 sequelize
   .authenticate()
   .then(() => {
-    console.log(`Database connected`);
+    console.log(
+      `${dbConfig.dialect} database connected >> ${dbConfig.HOST} >> ${dbConfig.DB}`
+    );
   })
   .catch((err) => {
     console.log(err);

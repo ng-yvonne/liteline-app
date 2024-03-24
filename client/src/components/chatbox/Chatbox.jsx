@@ -1,74 +1,57 @@
-import { useState, useRef, useEffect, useContext } from "react";
-import { useSelector } from "react-redux";
+import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import "./Chatbox.css"; // import CSS for styling
 import { Button } from "@mui/material";
 import Message from "./Message";
-import { SocketContext } from "../../SocketProvider";
 import {
   useAddMessageMutation,
   useGetMessagesByRoomQuery,
 } from "../../store/message/messageApiSlice";
+import { setMessage } from "../../store/message/messageSlice";
+import socket from "../../socket";
 
 // Chatbox component to display the chat interface
 const Chatbox = () => {
   const { userInfo } = useSelector((state) => state.user);
   const { roomInfo } = useSelector((state) => state.room);
-  const socket = useContext(SocketContext);
+  const { messages } = useSelector((state) => state.message);
+  const [inputValue, setInputValue] = useState("");
+  const messagesEndRef = useRef(null);
   const [addMessage, { isLoading }] = useAddMessageMutation();
   const { data, isGetMessagesLoading } = useGetMessagesByRoomQuery(
     roomInfo.roomCode
   );
-
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef(null);
+  const dispatch = useDispatch();
 
   // Load room's message log from db
   useEffect(() => {
     if (!isGetMessagesLoading && data) {
-      setMessages(data);
+      dispatch(setMessage(data));
     }
   }, [isGetMessagesLoading, data]);
-
-  // socket for receiving and sending messages
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleMessage = (data) => {
-      if (data) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            sender: data.sender,
-            sendername: data.sendername,
-            message: data.message,
-            timestamp: data.timestamp,
-          },
-        ]);
-      }
-    };
-    socket.on("message", handleMessage);
-
-    return () => {
-      socket.off("message", handleMessage);
-    };
-  }, [socket]);
 
   // Function to handle sending messages
   const sendMessage = async () => {
     if (inputValue.trim() !== "") {
       const newMessage = {
         sender: userInfo.uid,
-        sendername: userInfo.username,
+        username: userInfo.username,
         message: inputValue,
         timestamp: new Date().toISOString(), // Add timestamp when message is sent
       };
 
       try {
         socket.emit("message", { ...newMessage, room: roomInfo.roomCode });
-        setMessages([...messages, newMessage]);
+        dispatch(setMessage([...messages, newMessage]));
         setInputValue("");
-        await addMessage({ ...newMessage, room: roomInfo.roomCode }).unwrap();
+        const response = await addMessage({
+          ...newMessage,
+          room: roomInfo.roomCode,
+        }).unwrap();
+        // // check if response 200
+        // if (response) {
+        //   socket.emit("message", { ...newMessage, room: roomInfo.roomCode });
+        // }
       } catch (err) {
         console.log(err?.data?.message || err.error);
       }
@@ -89,14 +72,19 @@ const Chatbox = () => {
     // Add your logic here to handle different commands
     switch (command) {
       case "/clear":
-        setMessages([]);
+        dispatch(setMessage([]));
         break;
       default:
         // Command not recognized
-        setMessages([
-          ...messages,
-          { username: "Bot", message: `Command "${command}" not recognized.` },
-        ]);
+        dispatch(
+          setMessage([
+            ...messages,
+            {
+              username: "Bot",
+              message: `Command "${command}" not recognized.`,
+            },
+          ])
+        );
         break;
     }
   };
@@ -104,9 +92,10 @@ const Chatbox = () => {
   return (
     <div className="chatbox">
       <div className="messages-container">
-        {messages.map((message, index) => (
-          <Message key={index} message={message} />
-        ))}
+        {messages &&
+          messages.map((message, index) => (
+            <Message key={index} message={message} />
+          ))}
         <div ref={messagesEndRef} />
       </div>
       <div className="input-container">

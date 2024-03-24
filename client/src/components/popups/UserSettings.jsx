@@ -9,16 +9,22 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import SignOut from "../authenticator/Signout";
+import Loader from "../loader/Loader";
+import socket from "../../socket";
 import { useUpdateUserMutation } from "../../store/user/userApiSlice";
 import { setUserInfo } from "../../store/user/userSlice";
+import {
+  setSuccessAlert,
+  setErrorAlert,
+  setInfoAlert,
+} from "../../store/notification/notificationSlice";
 
 const UserSettings = () => {
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState({ isError: false, text: "" });
   const [newUsername, setNewUsername] = useState(""); // State to store the new username input
   const [isEditing, setIsEditing] = useState(false); // State to track whether username is being edited
   const { userInfo } = useSelector((state) => state.user);
-  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [updateUser, { isLoading }] = useUpdateUserMutation();
   const dispatch = useDispatch();
 
   const handleOpen = () => {
@@ -27,7 +33,6 @@ const UserSettings = () => {
 
   const handleClose = () => {
     setIsEditing(false);
-    setMessage({ isError: false, text: "" });
     setOpen(false);
   };
 
@@ -36,22 +41,31 @@ const UserSettings = () => {
   };
 
   const onSave = async () => {
-    try {
-      const res = await updateUser({ username: newUsername }).unwrap();
-      dispatch(setUserInfo({ ...res }));
-      setMessage({ isError: false, text: "Username Updated" });
-    } catch (err) {
-      setMessage({ isError: true, text: err?.data?.message || err.error });
+    if (userInfo.username === newUsername) {
+      dispatch(setInfoAlert("Same username, no update required."));
+    } else {
+      try {
+        const res = await updateUser({ username: newUsername }).unwrap();
+        socket.emit("updateUsername", newUsername);
+        dispatch(setUserInfo({ ...res }));
+        dispatch(setSuccessAlert("Username updated."));
+        handleClose();
+      } catch (err) {
+        setIsEditing(false);
+        dispatch(setErrorAlert(err?.data?.message || err.error));
+      }
     }
-
-    setIsEditing(false);
   };
 
   useEffect(() => {
     if (userInfo) {
       setNewUsername(userInfo.username);
     }
-  }, [userInfo]);
+  }, [open, userInfo]);
+
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <Fragment>
@@ -115,13 +129,6 @@ const UserSettings = () => {
                   Edit
                 </Button>
               )}
-            </div>
-            <div
-              className={`text-sm text-${
-                message.isError ? "rose-700" : "green-600"
-              }`}
-            >
-              {message.text}
             </div>
           </div>
 

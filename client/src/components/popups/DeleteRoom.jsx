@@ -1,4 +1,4 @@
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -8,12 +8,16 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import Loader from "../loader/Loader";
 import { useDeleteRoomMutation } from "../../store/room/roomApiSlice";
 import { setRoomInfo } from "../../store/room/roomSlice";
-import { SocketContext } from "../../SocketProvider";
+import {
+  setErrorAlert,
+  setSuccessAlert,
+} from "../../store/notification/notificationSlice";
+import socket from "../../socket";
 
 const DeleteRoom = ({ setParentClose, open, setOpen }) => {
-  const socket = useContext(SocketContext);
   const navigate = useNavigate();
   const [deleteRoom, { isLoading }] = useDeleteRoomMutation();
   const { roomInfo } = useSelector((state) => state.room);
@@ -30,14 +34,21 @@ const DeleteRoom = ({ setParentClose, open, setOpen }) => {
 
   const onDeleteRoom = async () => {
     try {
-      await deleteRoom({ roomCode: roomInfo.roomCode }).unwrap();
+      const response = await deleteRoom({
+        roomCode: roomInfo.roomCode,
+      }).unwrap();
       socket.emit("deleteRoom", roomInfo.roomCode);
       dispatch(setRoomInfo(null));
+      dispatch(setSuccessAlert(response));
       navigate("/chatroom");
     } catch (err) {
-      console.log(err?.data?.message || err.error);
+      dispatch(setErrorAlert(err?.data?.message || err.error));
     }
   };
+
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <Fragment>

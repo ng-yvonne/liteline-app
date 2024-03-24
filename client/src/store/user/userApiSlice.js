@@ -9,7 +9,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User"],
     }),
     login: builder.mutation({
       query: (data) => ({
@@ -17,20 +16,17 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User"],
     }),
     logout: builder.mutation({
       query: () => ({
         url: `${USERS_URL}/logout`,
         method: "POST",
       }),
-      invalidatesTags: ["User"],
     }),
     getUser: builder.query({
       query: () => ({
         url: `${USERS_URL}/profile`,
         method: "GET",
-        credentials: "include",
       }),
       providesTags: ["User"],
     }),
@@ -39,9 +35,8 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/profile`,
         method: "PUT",
         body: data,
-        credentials: "include",
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ["User", "Message", "Room"],
     }),
   }),
 });

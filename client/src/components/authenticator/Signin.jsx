@@ -3,8 +3,13 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import Loader from "../loader/Loader";
 import { useLoginMutation } from "../../store/user/userApiSlice";
 import { setUserInfo } from "../../store/user/userSlice";
+import {
+  setErrorAlert,
+  resetNotification,
+} from "../../store/notification/notificationSlice";
 
 const defaultFormFields = {
   username: "",
@@ -13,7 +18,6 @@ const defaultFormFields = {
 
 const SignIn = () => {
   const [userCredential, setUserCredential] = useState(defaultFormFields);
-  const [message, setMessage] = useState("");
   const { username, password } = userCredential;
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -25,7 +29,6 @@ const SignIn = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
     setUserCredential({ ...userCredential, [name]: value });
   };
 
@@ -35,13 +38,18 @@ const SignIn = () => {
     try {
       const res = await login({ username, password }).unwrap();
       dispatch(setUserInfo({ ...res }));
+      dispatch(resetNotification());
       navigate("/chatroom");
     } catch (err) {
-      setMessage(err?.data?.message || err.error);
+      dispatch(setErrorAlert(err?.data?.message || err.error));
     }
 
     resetFormFields();
   };
+
+  if (isLoading) {
+    return <Loader isLoading={isLoading} />;
+  }
 
   return (
     <div className="pt-3 pb-5 px-4">
@@ -65,7 +73,6 @@ const SignIn = () => {
           value={password}
           variant="outlined"
         />
-        <div className="text-sm text-rose-700">{message}</div>
         <Button
           type="submit"
           color="secondary"
