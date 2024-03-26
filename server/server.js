@@ -61,5 +61,5 @@ app.get("/", (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log("Server is running at:" `${process.env.CLIENT_URL}:${process.env.SERVER_URL}`);
+  console.log("Server is running at:" `${process.env.SERVER_URL}:${process.env.PORT}`);
 });
