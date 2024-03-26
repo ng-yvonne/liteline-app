@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-const serverUrl = process.env.SERVER_URL;
+const serverUrl = "https://liteline-api.azurewebsites.net";
 const socket = io(serverUrl, {
   autoConnect: false,
   withCredentials: true,

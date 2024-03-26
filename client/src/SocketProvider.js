@@ -8,8 +8,7 @@ const SocketProvider = ({ children }) => {
   // "undefined" means the URL will be computed from the `window.location` object
   // add a server if/when deplyed
   // https://stackoverflow.com/questions/16978256/what-is-node-env-and-how-to-use-it-in-express
-  const URL =
-    "http://localhost:8000" || "https://liteline-api.azurewebsites.net";
+  const URL ="https://liteline-api.azurewebsites.net";
   // process.env.NODE_ENV === "production" ? undefined : "https://liteline-api.azurewebsites.net";
 
   useEffect(() => {
